@@ -2,7 +2,7 @@
 #DTL.pm
 #Last Change: 2008-12-15
 #Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.1
+#Version 0.2
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -35,7 +35,7 @@ require File::Basename;
 
 our @EXPORT=();
 our @EXPORT_OK=qw/Context Template/;
-our $VERSION = 0.1;
+our $VERSION = 0.2;
 
 
 
@@ -389,7 +389,7 @@ A Hash of parameters.
 
 Returns the first Argument.
 
-=head2 Methods
+=head2 Class constructers
 
 =head3 new(FILENAME, COMPILE)
 
@@ -548,6 +548,8 @@ Returns a Dotiac::DTL object
 	$t->print({array=>[1..100],template=>$mytemplate);
 	# This will now include and print the above package a hundert times and 
 	# will be a lot faster, depending on the contents of that for loop.
+
+=head1 DTL INTRO
 
 =head2 Comments
 

@@ -1,0 +1,23 @@
+--- #YAML:1.0
+name:                Dotiac
+version:             0.2
+abstract: |-
+  Render Django Templates in Perl
+license:             MIT
+author:              
+  - Marc Lucksch
+distribution_type:   module
+requires:     
+    Scalar::Util:                    0
+    Data::Dumper:                    0
+    File::Temp:                      0
+    Carp:                            0
+    File::Spec:                      0
+    File::Basename:                  0
+provides:
+   Dotiac::DTL:
+     file: lib/Dotiac/DTL.pm
+     version: 0.2
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3

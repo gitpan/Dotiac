@@ -33,6 +33,9 @@ lib/Dotiac/DTL/Variable.pm
 lib/Dotiac/DTL.pm
 Makefile.PL
 MANIFEST
+LICENSE
+Changes
+META.yml
 README
 t/0_basic_markup.t
 t/1_basic_tags.t

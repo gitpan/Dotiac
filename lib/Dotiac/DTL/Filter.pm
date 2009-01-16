@@ -1754,7 +1754,7 @@ If the value is not defined (not found or set to C<undef>) it will return the ST
 
 Perl considers other things false as Python.
 
-=dictsortreversed :PROPERTY
+=head2 dictsort :PROPERTY
 
 Sorts an array of hashes, objects or arrays by a common PROPERTY. (See C<|dictsort> for reverse sort)
 
@@ -1781,7 +1781,8 @@ If PROPERTY is omitted, it just sorts by name, you can use this to sort an array
 	{% for x in Posts|dictsort %}
 		{{x}}
 	{% endfor %}
-=dictsortreversed :PROPERTY
+
+=head2 dictsortreversed :PROPERTY
 
 Sorts an array of hashes, objects or arrays by a common PROPERTY in reverse order. (See C<|dictsort> for normal order)
 
@@ -1807,6 +1808,7 @@ If PROPERTY is omitted, it just sorts by name, you can use this to sort an array
 	{% for x in Posts|dictsort %}
 		{{x}}
 	{% endfor %}
+
 =head2 divisibleby :NUMBER
 
 Returns 1 (true value) if the value is divisible by NUMBER.
@@ -2489,7 +2491,7 @@ Returns a safe string and escapes an unsafe value.
 
 If you have a six word string and a tag after the sixth word and you truncate to six words, it will still insert a "...".
 
-head2 unordered_list
+=head2 unordered_list
 
 Converts a list-value of list into a HTML-unordered list without the surrounding <ul> Tag.
 

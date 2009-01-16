@@ -165,7 +165,7 @@ __END__
 
 =head1 NAME
 
-Dotiac::DTL::Tag::widthratio - The {% width VARIABLE as NEWVARIABLENAME %} tag
+Dotiac::DTL::Tag::with - The {% with VARIABLE as NEWVARIABLENAME %} tag
 
 =head1 SYNOPSIS
 

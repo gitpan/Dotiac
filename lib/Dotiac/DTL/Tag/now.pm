@@ -91,7 +91,7 @@ __END__
 
 =head1 NAME
 
-Dotiac::DTL::Tag::new - The {% new FORMAT %} tag
+Dotiac::DTL::Tag::now - The {% now FORMAT %} tag
 
 =head1 SYNOPSIS
 

@@ -70,7 +70,7 @@ __END__
 
 =head1 NAME
 
-Dotiac::DTL::Compield - Stores a compiled Django template.
+Dotiac::DTL::Compiled - Stores a compiled Django template.
 
 =head1 SYNOPSIS
 
@@ -117,7 +117,7 @@ but more difficult to write.
 
 =head2 Pros and cons
 
-B<Pros>
+=head3 Pros
 
 =over
 
@@ -141,7 +141,7 @@ B<Pros>
 
 =back
 
-B<Pros>
+=head3 Cons
 
 =over
 

@@ -1,13 +1,16 @@
 use Test::More tests=>324;
 chdir "t";
 require Dtest;
+BEGIN {
+	*CORE::GLOBAL::localtime = sub { return(gmtime($_[0])) };
+}
 
 dtest("filter_add.html","ABAB10A133AC123A579ABA\n",{A=>123,B=>456,C=>"A",D=>"B"});
 dtest("filter_addslashes.html",q(A\\\\B\\"A\\'\\'\\\\CA\\\\B\\"\\"A\\'\\'\\\\)."\n",{});
 dtest("filter_capfirst.html","ABaCAbA\n",{var=>"ab"});
 dtest("filter_center.html","A  B  ACA  B   A--D---A\n",{var=>"ACA"});
 dtest("filter_cut.html","ABACABA\n",{var1=>"NBNA",var2=>"BFOOAFOO"});
-dtest("filter_date.html","A20th August 1970 14:11Aa.m.AMjan02Fri9:29January921 0921of292Friday001Jan1Jan.+01009:29 a.m.Fri, 1 Jan 2009 21:29:0 +010000nd30w000920091A2nd January 2009 21:31\n",{var1=>20002312,var2=>[36,31,21,2,0,109,5,1,0]});
+dtest("filter_date.html","A20th August 1970 12:11Aa.m.AMjan02Fri8:29January820 0820of292Friday001Jan1Jan.+00008:29 a.m.Fri, 1 Jan 2009 20:29:0 +000000nd30w000920091A2nd January 2009 21:31\n",{var1=>20002312,var2=>[36,31,21,2,0,109,5,1,0]});
 dtest("filter_default.html","ABACCABA\n",{var=>undef,null=>0.0e1,empty=>"",zero=>"0",array=>[],hash=>{}});
 dtest("filter_default_if_none.html","ABACABA\n",{var=>undef});
 dtest("filter_dictsort.html","AbbcdhsA239103299AaabcccddOnTwThFiAFiOnThTwA\n",{"scalar",[qw/h c s d bb/],number=>[9,32,2,3,99,10],array=>[["dd","t9"],["b","t2"],["ccc","t5"],["aa","t1"]],hash=>[{name=>"3",val=>"Th"},{name=>"5",val=>"Fi"},{name=>"1",val=>"On"},{name=>"2",val=>"Tw"}]});
@@ -43,7 +46,7 @@ dtest("filter_slice.html","AbAcAbAb c dAa bATAHATAT H FAO TA\n",{array=>[qw/a b 
 dtest("filter_slugify.html","Abac-aba\n",{});
 dtest("filter_stringformat.html","A     (\"a\", \"b\", \"c\")A               a b cA+03A\n",{});
 dtest("filter_striptags.html","ABACABA\n",{});
-dtest("filter_time.html","A14:11pa.m.AM9:29921092129+01009:29 a.m.005340rnbfA\n",{var2=>[36,31,21,2,0,109,5,1,0]});
+dtest("filter_time.html","A12:11pa.m.AM8:29820082029+00008:29 a.m.001740rnbfA\n",{var2=>[36,31,21,2,0,109,5,1,0]});
 dtest("filter_timesince.html","A1 minuteA1 hour 40 minutesA1 weekA1 week 1 day 13 hours 47 minutesA6 days 22 hours 40 minutesA\n",{});
 dtest("filter_timeuntil.html","A1 minuteA1 hour 40 minutesA1 weekA1 week 1 day 13 hours 47 minutesA6 days 22 hours 40 minutesA\n",{});
 dtest("filter_title.html","ABaCa BA\n",{});

@@ -2,7 +2,7 @@
 #Core.pm
 #Last Change: 2008-12-15
 #Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.1
+#Version 0.2
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -13,6 +13,10 @@
 #the license is (at the time of writing) also available at
 #http://www.opensource.org/licenses/mit-license.php .
 ###############################################################################
+
+package Dotiac::DTL::Core;
+
+our $VERSION="0.2";
 
 package Dotiac::DTL;
 require Dotiac::DTL::Addon;

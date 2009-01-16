@@ -180,9 +180,9 @@ Stuff that doesn't belong to the first variable is silently ignored:
 Everywhere a variable is requested you can also use a string and/or filters as these are considered to be part
 of the variable. Here shown with the tag cycle (L<Dotiac::DTL::Tag::cycle>):
 
-	{% cycle variable, othervariable, "string with spaces, and even colons" %}
-	{% cycle variablewithfilter|lower, variablewithmorefilters|lower|addslashes %}
-	{% cycle "string with a filter"|lower|addslashes, "string with a filter with arguments"|cut:", " %}
+	{% cycle variable othervariable, "string with spaces, and even colons" %}
+	{% cycle variablewithfilter|lower variablewithmorefilters|lower|addslashes %}
+	{% cycle "string with a filter"|lower|addslashes "string with a filter with arguments"|cut:", " %}
 
 The variable can not contain spaces, colons or other special chars, unless those are in quotes (single or double)
 They can never contain (for now) :  %} and }}, depending on wether they are in a tag or standalone.

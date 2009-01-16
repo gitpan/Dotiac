@@ -8,8 +8,8 @@ WriteMakefile(
                          'Scalar::Util' => 0,
 			 'Data::Dumper' => 0,
 			 'File::Temp' => 0,
+			 'File::Basename' => 0,
+			 'File::Spec' => 0,
 			 'Carp'=>0,
-			 'File::Spec'=>0,
-			 'File::Basename'=>0,
 		 }
 );
