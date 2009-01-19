@@ -1,8 +1,8 @@
 ###############################################################################
 #Core.pm
-#Last Change: 2008-12-15
-#Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.2
+#Last Change: 2009-01-19
+#Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
+#Version 0.3
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -16,7 +16,7 @@
 
 package Dotiac::DTL::Core;
 
-our $VERSION="0.2";
+our $VERSION="0.3";
 
 package Dotiac::DTL;
 require Dotiac::DTL::Addon;
@@ -229,6 +229,7 @@ sub descap {
 
 sub get_variables {
 	my $x=shift;
+	$x="" if not defined $x or ref $x;
 	while ($x=~m/[^\"\']*([\"\'])/g) {
 		my $opos=pos($x);
 		if ($1 eq '"') {

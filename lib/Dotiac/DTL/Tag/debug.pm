@@ -1,7 +1,7 @@
 #debug.pm
-#Last Change: 2008-12-19
-#Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.1
+#Last Change: 2009-01-19
+#Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
+#Version 0.3
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -18,7 +18,7 @@ use base qw/Dotiac::DTL::Tag/;
 use strict;
 use warnings;
 use Data::Dumper;
-use Carp qw/longmess/;
+use Carp;
 
 sub new {
 	my $class=shift;
@@ -29,12 +29,12 @@ sub new {
 sub print {
 	my $self=shift;
 	print $self->{p};
-	print "<pre>\n",Data::Dumper->Dump([\@_,longmess],[qw/Parameter Stack/]),"</pre>\n";
+	print "<pre>\n",Data::Dumper->Dump([\@_,Carp::longmess()],[qw/Parameter Stack/]),"</pre>\n";
 	$self->{n}->print(@_);
 }
 sub string {
 	my $self=shift;
-	return $self->{p}."<pre>\n".Data::Dumper->Dump([\@_,longmess],[qw/Parameter Stack/])."</pre>\n".$self->{n}->string(@_);
+	return $self->{p}."<pre>\n".Data::Dumper->Dump([\@_,Carp::longmess()],[qw/Parameter Stack/])."</pre>\n".$self->{n}->string(@_);
 	
 }
 sub perl {
@@ -43,7 +43,7 @@ sub perl {
 	my $id=shift;
 	$self->SUPER::perl($fh,$id,@_);
 	print $fh "use Data::Dumper;\n";
-	print $fh "use Carp qw/longmess/;\n";
+	print $fh "use Carp;\n";
 	return $self->{n}->perl($fh,$id+1,@_);
 }
 sub perlprint {
@@ -52,7 +52,7 @@ sub perlprint {
 	my $id=shift;
 	my $level=shift;
 	$self->SUPER::perlprint($fh,$id,$level,@_);
-	print $fh "\t" x $level,'print "<pre>\n",Data::Dumper->Dump([[$vars,$escape,@_],longmess],[qw/Parameter Stack/]),"</pre>\n";',"\n";
+	print $fh "\t" x $level,'print "<pre>\n",Data::Dumper->Dump([[$vars,$escape,@_],Carp::longmess()],[qw/Parameter Stack/]),"</pre>\n";',"\n";
 	return $self->{n}->perlprint($fh,$id+1,$level,@_);
 }
 sub perlstring {
@@ -61,7 +61,7 @@ sub perlstring {
 	my $id=shift;
 	my $level=shift;
 	$self->SUPER::perlstring($fh,$id,$level,@_);
-	print $fh "\t" x $level,'$r.="<pre>\n".Data::Dumper->Dump([[$vars,$escape,@_],longmess],[qw/Parameter Stack/])."</pre>\n";',"\n";
+	print $fh "\t" x $level,'$r.="<pre>\n".Data::Dumper->Dump([[$vars,$escape,@_],Carp::longmess()],[qw/Parameter Stack/])."</pre>\n";',"\n";
 	return $self->{n}->perlstring($fh,$id+1,$level,@_);
 }
 sub perleval {

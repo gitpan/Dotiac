@@ -1,8 +1,8 @@
 ###############################################################################
 #DTL.pm
-#Last Change: 2008-12-15
+#Last Change: 2008-01-19
 #Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.2
+#Version 0.3
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -35,7 +35,7 @@ require File::Basename;
 
 our @EXPORT=();
 our @EXPORT_OK=qw/Context Template/;
-our $VERSION = 0.2;
+our $VERSION = 0.3;
 
 
 

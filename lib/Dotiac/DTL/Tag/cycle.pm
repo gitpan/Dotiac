@@ -1,7 +1,7 @@
 #cycle.pm
-#Last Change: 2008-12-19
-#Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.1
+#Last Change: 2009-01-19
+#Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
+#Version 0.3
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -128,9 +128,9 @@ sub perl {
 	my $id=shift;
 	$self->SUPER::perl($fh,$id,@_);
 	print $fh "my " if $self->{name};
-	print $fh Data::Dumper->Dump([$self->{name}],["\$name$id"]) if $self->{name};
+	print $fh (Data::Dumper->Dump([$self->{name}],["\$name$id"])) if $self->{name};
 	print $fh "my " if $self->{cycle};
-	print $fh Data::Dumper->Dump([$self->{cycle}],["\$cycle$id"]) if $self->{cycle};
+	print $fh (Data::Dumper->Dump([$self->{cycle}],["\$cycle$id"])) if $self->{cycle};
 	return $self->{n}->perl($fh,$id+1,@_);
 }
 sub perlprint {

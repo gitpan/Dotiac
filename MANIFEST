@@ -42,10 +42,13 @@ t/1_basic_tags.t
 t/1_tag_now.t
 t/1_tag_ssi.t
 t/2_basic_filters.t
+t/5_bugs.t
 t/6_reduced_compiled.t
 t/7_special.t
+t/7_special_noload.t
 t/8_old.t
 t/9_undoc_behavior.t
+t/4_pod.t
 t/comments.html
 t/datastructures.html
 t/Dotiac/DTL/Addon/customtext.pm
@@ -115,6 +118,7 @@ t/inc_var.html
 t/justtext.html
 t/old_cycle.html
 t/special_unparsed.html
+t/special_unparsed_noload.html
 t/statics.html
 t/tag_autoescape.html
 t/tag_block.html
@@ -128,6 +132,7 @@ t/tag_debug.html
 t/tag_extends.html
 t/tag_extends_var.html
 t/tag_filter.html
+t/tag_filter_bug.html
 t/tag_firstof.html
 t/tag_for_array.html
 t/tag_for_array2.html

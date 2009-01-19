@@ -1,8 +1,8 @@
 ###############################################################################
 #Filter.pm
-#Last Change: 2000-01-02
-#Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.1
+#Last Change: 2009-01-19
+#Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
+#Version 0.3
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -212,7 +212,7 @@ sub date {
 			$res.=", ";
 			$res.=$t[4]+1;
 			$res.=" ".$datemonths[$t[4]]." ".($t[5]+1900);
-			$res.=" ".$t[2].":".$t[1].":".$t[0];
+			$res.=sprintf(" %02d:%02d:%02d",$t[2],$t[1],$t[0]);
 			my @tt=localtime(0);
 			$tt[2]+=1 if $t[8];
 			$res.=sprintf(" %+05d",$tt[2]*100+$tt[1]);
@@ -417,7 +417,8 @@ sub escapejs {
 	my $value=shift;
 	my $val=$value->repr();
 	$val =~ s/([\n\r\t\f\b"'\\])/$jsescape{$1}/eg;
-        $val =~ s/([\x00-\x08\x0b\x0e-\x1f\x{7f}-\x{ffff}])/'\\u' .sprintf("%04x",ord($1))/eg;
+	#$val =~ s/([\x00-\x08\x0b\x0e-\x1f\x7f-\x{FFFF}])/'\\u' .sprintf("%04x",ord($1))/eg; #Won't work in Perl 5.6.0
+	$val =~ s/([^\x09\x0a\x0c\x0d\x20-\x7e])/'\\u' .sprintf("%04x",ord($1))/eg;
 	$value->set($val);
 	return $value;
 }
@@ -1846,6 +1847,10 @@ Escapes a Javascript (JSON) String. This will not generate JSON Code out of data
 =head3 Bugs and Differences to Django
 
 Might escape some more characters than original Django.
+
+On perl 5.6.2 unicode output is not really supported, you will get for example:
+
+	\u00e3\u0093\u00b4 instead of \u4532
 
 =head2 filesizeformat
 

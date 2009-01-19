@@ -1,7 +1,7 @@
 #widthratio.pm
-#Last Change: 2008-12-29
-#Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.1
+#Last Change: 2009-01-19
+#Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
+#Version 0.3
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -56,11 +56,11 @@ sub perl {
 	my $id=shift;
 	$self->SUPER::perl($fh,$id,@_);
 	print $fh "my ";
-	print $fh Data::Dumper->Dump([$self->{width}],["\$width$id"]);
+	print $fh (Data::Dumper->Dump([$self->{width}],["\$width$id"]));
 	print $fh "my ";
-	print $fh Data::Dumper->Dump([$self->{max}],["\$wmax$id"]);
+	print $fh (Data::Dumper->Dump([$self->{max}],["\$wmax$id"]));
 	print $fh "my ";
-	print $fh Data::Dumper->Dump([$self->{cur}],["\$wcur$id"]);
+	print $fh (Data::Dumper->Dump([$self->{cur}],["\$wcur$id"]));
 	return $self->{n}->perl($fh,$id+1,@_) if $self->{n};	
 	return $id;
 }

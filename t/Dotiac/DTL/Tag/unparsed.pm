@@ -39,7 +39,7 @@ sub perl {
 	my $id=shift;
 	$self->SUPER::perl($fh,$id,@_);
 	print $fh "my ";
-	print $fh Data::Dumper->Dump([$self->{content}],["\$content$id"]);
+	print $fh (Data::Dumper->Dump([$self->{content}],["\$content$id"]));
 	return $self->{n}->perl($fh,$id+1,@_)
 }
 sub perlinit {

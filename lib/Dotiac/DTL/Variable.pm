@@ -1,8 +1,8 @@
 ###############################################################################
 #Variable.pm
-#Last Change: 2008-12-15
-#Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.1
+#Last Change: 2009-01-19
+#Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
+#Version 0.3
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -67,15 +67,15 @@ sub perl {
 	my $fh=shift;
 	my $id=shift;
 	print $fh "my ";
-	print $fh Data::Dumper->Dump([$self->{p}],["\$text$id"]);
+	print $fh (Data::Dumper->Dump([$self->{p}],["\$text$id"]));
 	print $fh "my ";
 	my $x=$self->{name};
 
 	$x=Dotiac::DTL::descap(substr($x,1,-1)) if substr($x,0,1) eq "`";
-	print $fh Data::Dumper->Dump([$x],["\$var$id"]);
+	print $fh (Data::Dumper->Dump([$x],["\$var$id"]));
 	if (@{$self->{filters}}) {
 		print $fh "my ";
-		print $fh Data::Dumper->Dump([$self->{filters}],["\$filters$id"]);
+		print $fh (Data::Dumper->Dump([$self->{filters}],["\$filters$id"]));
 	}
 	return $self->{n}->perl($fh,$id+1,@_);
 	

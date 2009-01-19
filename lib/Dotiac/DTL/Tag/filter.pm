@@ -1,7 +1,7 @@
 #filter.pm
-#Last Change: 2008-12-19
-#Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.1
+#Last Change: 2009-01-19
+#Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
+#Version 0.3
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -38,14 +38,14 @@ sub print {
 	print $self->{p};
 	my $vars=shift;
 	my $escape=shift;
-	print Dotiac::DTL::apply_filters($self->{content}->string($vars,$escape,@_),$vars,$escape,@{$self->{filters}})->string();
+	print Dotiac::DTL::apply_filters($self->{content}->string($vars,$escape,@_),$vars,0,@{$self->{filters}})->string();
 	$self->{n}->print($vars,$escape,@_);
 }
 sub string {
 	my $self=shift;
 	my $vars=shift;
 	my $escape=shift;
-	return $self->{p}.Dotiac::DTL::apply_filters($self->{content}->string($vars,$escape,@_),$vars,$escape,@{$self->{filters}})->string().$self->{n}->string($vars,$escape,@_);
+	return $self->{p}.Dotiac::DTL::apply_filters($self->{content}->string($vars,$escape,@_),$vars,0,@{$self->{filters}})->string().$self->{n}->string($vars,$escape,@_);
 	
 }
 sub perl {
@@ -54,7 +54,7 @@ sub perl {
 	my $id=shift;
 	$self->SUPER::perl($fh,$id,@_);
 	print $fh "my ";
-	print $fh Data::Dumper->Dump([$self->{filters}],["\$filters$id"]);
+	print $fh (Data::Dumper->Dump([$self->{filters}],["\$filters$id"]));
 	$id=$self->{content}->perl($fh,$id+1,@_);
 	return $self->{n}->perl($fh,$id+1,@_) if $self->{n};	
 	return $id;

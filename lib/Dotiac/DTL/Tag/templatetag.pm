@@ -1,7 +1,7 @@
 #templatetag.pm
-#Last Change: 2008-12-29
-#Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.1
+#Last Change: 2009-01-19
+#Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
+#Version 0.3
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -130,7 +130,9 @@ Inserts the special tags used by Django Templates into the rendered output.
 
 =head2 The tags
 
-These are the tags which can be used
+These are the tags which can be used.
+
+=over
 
 =item openblock
 
@@ -179,6 +181,8 @@ The tag that starts a comment.
 The tag that ends a comment.
 
 	%}
+
+=back
 
 =head1 BUGS AND DIFFERENCES TO DJANGO
 

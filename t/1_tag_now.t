@@ -9,5 +9,8 @@ BEGIN {
 require Dtest;
 use warnings;
 use strict;
-
-dtest("tag_now.html","p.m.PMjan08Sat11:09January1111 1111of098Saturday001Jan1Jan.+000011:09 p.m.Sat, 1 Jan 2011 11:9:44 +000044th30w011120117\n",{});
+my @t=gmtime(1294484984);
+SKIP: {
+	skip("Strange time handling detected, can't test for it then",6) unless $t[0] == "44" and $t[1] == 9 and $t[2] == 11;
+	dtest("tag_now.html","p.m.PMjan08Sat11:09January1111 1111of098Saturday001Jan1Jan.+000011:09 p.m.Sat, 1 Jan 2011 11:09:44 +000044th30w011120117\n",{});
+};

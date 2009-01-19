@@ -1,7 +1,7 @@
 #ssi.pm
-#Last Change: 2008-12-28
-#Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.1
+#Last Change: 2009-01-19
+#Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
+#Version 0.3
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -90,7 +90,7 @@ sub perl {
 	$self->SUPER::perl($fh,$id,@_);
 	if ($self->{content}) {
 		print $fh "my ";
-		print $fh Data::Dumper->Dump([$self->{load}],["\$name$id"]);
+		print $fh (Data::Dumper->Dump([$self->{load}],["\$name$id"]));
 		if ($self->{parsed}) {
 			print $fh "my \$template$id=Dotiac::DTL->safenew(\$name$id);\n";
 		}
@@ -102,7 +102,7 @@ sub perl {
 	}
 	else {
 		print $fh "my ";
-		print $fh Data::Dumper->Dump([$self->{var}],["\$name$id"]);
+		print $fh (Data::Dumper->Dump([$self->{var}],["\$name$id"]));
 	}
 	return $self->{n}->perl($fh,$id+1,@_);
 }

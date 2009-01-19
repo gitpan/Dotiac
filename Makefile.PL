@@ -11,5 +11,6 @@ WriteMakefile(
 			 'File::Basename' => 0,
 			 'File::Spec' => 0,
 			 'Carp'=>0,
+			 'Digest::MD5'=>0,
 		 }
 );

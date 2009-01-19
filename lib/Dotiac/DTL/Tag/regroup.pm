@@ -1,7 +1,7 @@
 #regroup.pm
-#Last Change: 2008-12-28
-#Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.1
+#Last Change: 2009-01-19
+#Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
+#Version 0.3
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -101,11 +101,11 @@ sub perl {
 	my $id=shift;
 	$self->SUPER::perl($fh,$id,@_);
 	print $fh "my ";
-	print $fh Data::Dumper->Dump([$self->{var}],["\$varname$id"]);
+	print $fh (Data::Dumper->Dump([$self->{var}],["\$varname$id"]));
 	print $fh "my ";
-	print $fh Data::Dumper->Dump([$self->{property}],["\$property$id"]);
+	print $fh (Data::Dumper->Dump([$self->{property}],["\$property$id"]));
 	print $fh "my ";
-	print $fh Data::Dumper->Dump([$self->{source}],["\$source$id"]);
+	print $fh (Data::Dumper->Dump([$self->{source}],["\$source$id"]));
 	return $self->{n}->perl($fh,$id+1,@_) if $self->{n};	
 	return $id;
 }

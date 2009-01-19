@@ -1,8 +1,8 @@
 ###############################################################################
 #Comment.pm
-#Last Change: 2008-12-15
-#Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.1
+#Last Change: 2009-01-19
+#Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
+#Version 0.3
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -152,6 +152,8 @@ but more difficult to write.
 =item The autocompiler produces rather big files, some times 20x the size of the template it compiled. This lessens if less tags and more text are used.
 
 =item There is now way back from autocompiled templates to normal ones. If you loose the source, it's gone.
+
+=back
 
 =head2 Removing cons
 

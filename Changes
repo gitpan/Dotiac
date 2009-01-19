@@ -1,3 +1,11 @@
+0.3
+
+Works now in perl 5.6.1.
+Fixed requirements.
+Added pod tests.
+Fixed tests to be skipped on systems with a different time format. (MirBSD)
+Added some more info to Meta.YML .
+
 0.2
 
 Fixed Documentation
