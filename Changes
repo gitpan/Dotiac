@@ -1,3 +1,7 @@
+0.4
+
+Fixed a single test that had problems on most systems.
+
 0.3
 
 Works now in perl 5.6.1.
