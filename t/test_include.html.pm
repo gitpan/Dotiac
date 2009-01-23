@@ -17,7 +17,7 @@ sub string {
 	my $s2=$template2->content();
 	if ($template2->scalar()) {
 		$template2 = Dotiac::DTL->safenew($template2->string());
-	} elsif ($template2->object() and $template2->content->isa("Dotiac::DTL")) {
+	} elsif ($template2->object() and $template2->content->isa("Dotiac::DTL::Template")) {
 		$template2=$template2->content;
 	} else {
 		die "Can't include \"$template2\"";
@@ -36,7 +36,7 @@ sub print {
 	my $s2=$template2->content();
 	if ($template2->scalar()) {
 		$template2 = Dotiac::DTL->safenew($template2->string());
-	} elsif ($template2->object() and $template2->content->isa("Dotiac::DTL")) {
+	} elsif ($template2->object() and $template2->content->isa("Dotiac::DTL::Template")) {
 		$template2=$template2->content;
 	} else {
 		die "Can't include \"$template2\"";
@@ -53,7 +53,7 @@ sub eval {
 	my $s2=$template2->content();
 	if ($template2->scalar()) {
 		$template2 = Dotiac::DTL->safenew($template2->string());
-	} elsif ($template2->object() and $template2->content->isa("Dotiac::DTL")) {
+	} elsif ($template2->object() and $template2->content->isa("Dotiac::DTL::Template")) {
 		$template2=$template2->content;
 	} else {
 		die "Can't include \"$template2\"";

@@ -2,7 +2,7 @@
 #DTL.pm
 #Last Change: 2008-01-19
 #Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.4
+#Version 0.5
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -16,10 +16,7 @@
 
 
 package Dotiac::DTL;
-require Dotiac::DTL::Tag;
-require Dotiac::DTL::Filter;
-require Dotiac::DTL::Variable;
-require Dotiac::DTL::Comment;
+require Dotiac::DTL::Parser;
 require Dotiac::DTL::Compiled;
 
 BEGIN {
@@ -35,7 +32,7 @@ require File::Basename;
 
 our @EXPORT=();
 our @EXPORT_OK=qw/Context Template/;
-our $VERSION = 0.4;
+our $VERSION = 0.5;
 
 
 
@@ -65,118 +62,8 @@ sub Context {
 	return $_[0];
 }
 
-sub unparsed {
-	my $self=shift;
-	my $template=shift;
-	my $pos=shift;
-	my $start=$$pos;
-	my @end = @_;
-	my $found;
-	my $starttag;
-	$found=shift @end if @end;
-	$starttag=shift @end if @end;
-	my @starttag;
-	@starttag = ($starttag) if $starttag and not ref $starttag;
-	@starttag = @{$starttag} if $starttag and ref $starttag eq "ARRAY";
-	my $text;
-	local $_;
-	while (1) {
-		my $p = index($$template,"{",$$pos);
-		if ($p >=0) {
-			$$pos=$p+1;
-			my $n = substr $$template,$$pos,1;
-			if ($n eq "%") {
-				my $text .= substr $$template,$start,$$pos-$start-1;
-				my $npos = index($$template,"%}",++$$pos);
-				die "Missing closing %} at char $$pos" if $npos < 0;
-				my $cont=substr $$template,$$pos,$npos-$$pos;
-				$$pos=$npos+2;
-				my $c=$cont;
-				$cont=~s/^\s+//;
-				$cont=~s/\s+$//;
-				my ($tagname,$param) = split /\s+/,$cont,2;
-				$tagname=lc $tagname;
-				$$found = $c and return $text if $found and grep {$_ eq $tagname} @end;
-				$text .= "{\%$c\%}";
-				$text .= $self->unparsed($template,$pos,@_) if $found and grep {$_ eq $tagname} @starttag;
-				$text .="{\%$$found\%}";
-				$$found="";				
-			}
-		}
-		else {
-			$$pos=length $$template;
-			return $text
-		}
-	}
-}
-
-
-sub parse {
-	my $self=shift;
-	my $template=shift;
-	my $pos=shift;
-	my $start=$$pos;
-	my @end = @_;
-	my $found;
-	$found=shift @end if @end;
-	local $_;
-	while (1) {
-		my $p = index($$template,"{",$$pos);
-		if ($p >=0) {
-			$$pos=$p+1;
-			my $n = substr $$template,$$pos,1;
-			if ($n eq "%") {
-				my $pre = substr $$template,$start,$$pos-$start-1;
-				my $npos = index($$template,"%}",++$$pos);
-				die "Missing closing %} at char $$pos" if $npos < 0;
-				my $cont=substr $$template,$$pos,$npos-$$pos;
-				$$pos=$npos+2;
-				$cont=~s/^\s+//;
-				$cont=~s/\s+$//;
-				my ($tagname,$param) = split /\s+/,$cont,2;
-				$tagname=lc $tagname;
-				$$found = $tagname and return Dotiac::DTL::Tag->new($pre) if $found and grep {$_ eq $tagname} @end;
-				my $r;
-				eval {$r="Dotiac::DTL::Tag::$tagname"->new($pre,$param,$self,$template,$pos);};
-				if ($@) {
-					die "Error while loading Tag '$tagname' from Dotiac::DTL::Tag::$tagname. If this is an endtag (like endif) then your template is unbalanced\n$@";
-				}
-				#print "\n\nold: $npos, new $$pos, lenght=".length $$template and die if $tagname eq "extends";
-				#warn $$pos," ",length $$template,"\n";
-				if ($$pos >= length $$template) {
-					$r->next(Dotiac::DTL::Tag->new(""));
-				}
-				else {
-					$r->next($self->parse($template,$pos,@_));
-				}
-				return $r;
-				
-			}
-			elsif ($n eq "{") {
-				my $pre = substr $$template,$start,$$pos-$start-1;
-				my $npos = index($$template,"}}",++$$pos);
-				die "Missing closing }} at char $$pos" if $npos < 0;
-				my $cont=substr $$template,$$pos,$npos-$$pos;
-				$$pos=$npos+2;
-				return Dotiac::DTL::Variable->new($pre,$cont,$self->parse($template,$pos,@_));
-			}
-			elsif ($n eq "#") {
-				my $pre = substr $$template,$start,$$pos-$start-1;
-				my $npos = index($$template,"#}",++$$pos);
-				die "Missing closing #} at char $$pos" if $npos < 0;
-				my $cont=substr $$template,$$pos,$npos-$$pos;
-				$$pos=$npos+2;
-				return Dotiac::DTL::Comment->new($pre,$cont,$self->parse($template,$pos,@_));
-			}
-		}
-		else {
-			$$pos=length $$template;
-			return Dotiac::DTL::Tag->new(substr $$template,$start);
-		}
-	}
-}
-
 my %cache;
+our $PARSER="Dotiac::DTL::Parser";
 sub newandcompile {
 	my $class=shift;
 	return $class->new(@_,1);
@@ -242,23 +129,17 @@ sub newandcompile {
 		else {
 			die "Can't work with $data!";
 		}
-		my $self={};
-		#$self->{data}=$data;
-		bless $self,$class;
-		if ($cache{$t}) {
-			$self->{first}=$cache{$t};
-		}
-		else {
+		unless ($cache{$t}) {
 			$cache{$t}=Dotiac::DTL::Tag->new("include/extend cycle detected"); #This prevents cycled includes to screw around during parsing time.
+			my $parser=$Dotiac::DTL::PARSER->new();
 			my $pos=0;
 			eval {
-				$self->{first}=$self->parse($data,\$pos);
+				$cache{$t}=$parser->parse($data,\$pos);
 				1;
 			} or do {
 				croak "Error while getting template $filename:\n $@\n.";
 				undef $@;
 			};
-			$cache{$t}=$self->{first};
 		}
 		if ($compile and $compile > 0) {
 			if (open my $cp,">","$t.pm") {
@@ -293,8 +174,7 @@ sub newandcompile {
 				carp "Can't open output to $$data.pm while compiling: $!";
 			}
 		}
-		$self->{vars}={};
-		return $self; #TODO Cache
+		return "Dotiac::DTL::Template"->new($cache{$t});
 	}
 }
 1;
@@ -456,6 +336,8 @@ Returns a Dotiac::DTL object.
 =cut
 
 =head2 Methods
+
+I<These work only on the returned Dotiac::DTL::Template object of new()>
 
 =head3 param(NAME, VALUE)
 

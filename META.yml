@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Dotiac
-version:             0.4
+version:             0.5
 abstract: |-
   Render Django Templates in Perl
 license:             MIT

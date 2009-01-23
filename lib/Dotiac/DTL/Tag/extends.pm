@@ -1,7 +1,7 @@
 #extends.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.4
+#Version 0.5
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -56,7 +56,7 @@ sub print {
 		if ($tem->scalar()) {
 			$tem = Dotiac::DTL->safenew($tem->string);
 		}
-		elsif ($tem->object() and $tem->content->isa("Dotiac::DTL")) {
+		elsif ($tem->object() and $tem->content->isa("Dotiac::DTL::Template")) {
 			$tem=$tem->content;
 		}
 		else {
@@ -76,7 +76,7 @@ sub string {
 	if ($tem->scalar()) {
 		$tem = Dotiac::DTL->safenew($tem->string);
 	}
-	elsif ($tem->object() and $tem->content->isa("Dotiac::DTL")) {
+	elsif ($tem->object() and $tem->content->isa("Dotiac::DTL::Template")) {
 		$tem=$tem->content;
 	}
 	else {
@@ -116,7 +116,7 @@ sub perlprint {
 		print $fh $in,"my \$template$id = Dotiac::DTL::devar_raw(\$name$id,\$vars,\$escape,\@_);\n";
 		print $fh $in,"if (\$template$id->scalar()) {\n";
 		print $fh $in,"\t\$template$id = Dotiac::DTL->safenew(\$template$id->string());\n";
-		print $fh $in,"} elsif (\$template$id->object() and \$template$id->content->isa(\"Dotiac::DTL\")) {\n";
+		print $fh $in,"} elsif (\$template$id->object() and \$template$id->content->isa(\"Dotiac::DTL::Template\")) {\n";
 		print $fh $in,"\t\$template$id=\$template$id->content;\n";
 		print $fh $in,"} else {\n";
 		print $fh $in,"\tdie \"Can't extend with \\\"\$template$id\\\"\";\n";
@@ -141,7 +141,7 @@ sub perlstring {
 		print $fh $in,"my \$template$id = Dotiac::DTL::devar_raw(\$name$id,\$vars,\$escape,\@_);\n";
 		print $fh $in,"if (\$template$id->scalar()) {\n";
 		print $fh $in,"\t\$template$id = Dotiac::DTL->safenew(\$template$id->string());\n";
-		print $fh $in,"} elsif (\$template$id->object() and \$template$id->content->isa(\"Dotiac::DTL\")) {\n";
+		print $fh $in,"} elsif (\$template$id->object() and \$template$id->content->isa(\"Dotiac::DTL::Template\")) {\n";
 		print $fh $in,"\t\$template$id=\$template$id->content;\n";
 		print $fh $in,"} else {\n";
 		print $fh $in,"\tdie \"Can't extend with \\\"\$template$id\\\"\";\n";

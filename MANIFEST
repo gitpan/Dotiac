@@ -4,6 +4,8 @@ lib/Dotiac/DTL/Compiled.pm
 lib/Dotiac/DTL/Core.pm
 lib/Dotiac/DTL/Filter.pm
 lib/Dotiac/DTL/Reduced.pm
+lib/Dotiac/DTL/Parser.pm
+lib/Dotiac/DTL/Template.pm
 lib/Dotiac/DTL/Tag/autoescape.pm
 lib/Dotiac/DTL/Tag/block.pm
 lib/Dotiac/DTL/Tag/comment.pm

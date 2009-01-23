@@ -12,7 +12,8 @@ To install this module type the following:
 
 DEPENDENCIES
 
-  perl 5.8.1
+  perl 5.6.1 or greater
+  Test::Pod (for testing Pod)
 
 COPYRIGHT AND LICENCE
 

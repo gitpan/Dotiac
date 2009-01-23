@@ -1,7 +1,7 @@
 #ssi.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.4
+#Version 0.5
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -126,7 +126,7 @@ sub perlprint {
 			print $fh $in,"if (not ref \$template$id) {\n";
 			print $fh $in,"\t\$template$id = Dotiac::DTL->new(\$template$id);\n";
 			print $fh $in,"} else {\n";
-			print $fh $in,"\tdie \"Can't extend with \\\"\$template$id\\\"\";\n";
+			print $fh $in,"\tdie \"Can't ssi with \\\"\$template$id\\\"\";\n";
 			print $fh $in,"}\n";
 			print $fh $in,"die \"Cyclic include detected \" if \$Dotiac::DTL::included{\$s$id}++;\n";
 			print $fh $in,"\$template$id"."->{first}->print(\$vars,\$escape,\@_);\n";
@@ -160,7 +160,7 @@ sub perlstring {
 			print $fh $in,"if (not ref \$template$id) {\n";
 			print $fh $in,"\t\$template$id = Dotiac::DTL->safenew(\$template$id);\n";
 			print $fh $in,"} else {\n";
-			print $fh $in,"\tdie \"Can't extend with \\\"\$template$id\\\"\";\n";
+			print $fh $in,"\tdie \"Can't ssi with \\\"\$template$id\\\"\";\n";
 			print $fh $in,"}\n";
 			print $fh $in,"die \"Cyclic include detected \" if \$Dotiac::DTL::included{\$s$id}++;\n";
 			print $fh $in,"\$r.=\$template$id"."->{first}->string(\$vars,\$escape,\@_);\n";
@@ -196,8 +196,8 @@ sub perleval {
 			print $fh $in,"my \$s$id=\$template$id;\n";
 			print $fh $in,"if (not ref \$template$id) {\n";
 			print $fh $in,"\t\$template$id = Dotiac::DTL->safenew(\$template$id);\n";
-			print $fh $in,"} elsif (not Scalar::Util::blessed \$template$id and not \$template$id->isa(\"Dotiac::DTL\")) {\n";
-			print $fh $in,"\tdie \"Can't extend with \\\"\$template$id\\\"\";\n";
+			print $fh $in,"} else {\n";
+			print $fh $in,"\tdie \"Can't ssi with \\\"\$template$id\\\"\";\n";
 			print $fh $in,"}\n";
 			print $fh $in,"die \"Cyclic include detected \" if \$Dotiac::DTL::included{\$s$id}++;\n";
 			print $fh $in,"\$template$id"."->{first}->eval(\$vars,\$escape,\@_);\n";
@@ -228,8 +228,8 @@ sub eval {
 			if (not ref $tem) {
 				$tem = Dotiac::DTL->safenew($tem);
 			}
-			elsif (not Scalar::Util::blessed $tem and not $tem->isa("Dotiac::DTL")) {
-				die "Can't extend with \"$tem\"";
+			else {
+				die "Can't ssi with \"$tem\"";
 			}
 			die "Cyclic include detected " if $Dotiac::DTL::included{$s}++;
 			$tem->{first}->eval(@_);

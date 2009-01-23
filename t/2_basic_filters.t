@@ -32,7 +32,10 @@ dtest("filter_fix_ampersands.html","A&amp;A&amp;amp;A&amp;A\n",{var=>"&"});
 dtest("filter_floatformat.html","A1A1.000A1.001A2A\n",{});
 dtest("filter_force_escape.html","A&lt;&amp;&gt;A&amp;amp;A&amp;lt;&amp;amp;&amp;gt;A\n",{var=>"&"});
 dtest("filter_get_digit.html","A8AFooA0A\n",{});
-dtest("filter_iriencode.html","A%CC%B4A%20A%20%CC%B4%20A\n",{});
+SKIP: {
+	skip ("Can't trust perl 5.6 with Unicode",6) if ($] < 5.008);
+	dtest("filter_iriencode.html","A%CC%B4A%20A%20%CC%B4%20A\n",{});
+};
 dtest("filter_join.html","A123A1,2,3A11 2 321 2 33A\n",{var=>[1, 2, 3]});
 dtest("filter_last.html","ABACABA\n",{array=>[qw/D E B/],hash=>{qw/1 V 2 C/},empty=>[]});
 dtest("filter_length.html","A3A2A3A\n",{array=>[qw/D E B/],hash=>{qw/C V A G/},empty=>[]});

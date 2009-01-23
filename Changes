@@ -1,3 +1,9 @@
+0.5
+
+Extracted Parser/Template into seperate files
+Made set variables with dots in them work
+Skipped unicode test with perl 5.6.X
+
 0.4
 
 Fixed a single test that had problems on most systems.

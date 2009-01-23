@@ -2,7 +2,7 @@
 #Core.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.4
+#Version 0.5
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -16,11 +16,11 @@
 
 package Dotiac::DTL::Core;
 
-our $VERSION="0.4";
+our $VERSION="0.5";
 
 package Dotiac::DTL;
-require Dotiac::DTL::Addon;
 require Dotiac::DTL::Value;
+require Dotiac::DTL::Template;
 
 use strict;
 use warnings;
@@ -102,17 +102,13 @@ sub new {
 	else {
 		die "Can't work with $data!";
 	}
-	my $self={};
 	#$self->{data}=$data;
-	bless $self,$class;
 	if ($cache{$t}) {
-		$self->{first}=$cache{$t};
+		return "Dotiac::DTL::Template"->new($cache{$t});
 	}
 	else {
 		croak "Dotiac::DTL::Reduced can only work with compiled templates, use Dotiac::DTL for the full interface";
 	}
-	$self->{vars}={};
-	return $self; #TODO Cache
 }
 
 our $currentdir="";
@@ -135,66 +131,18 @@ sub safenew {
 sub compiled {
 	my $class=shift;
 	my $name=shift;
-	my $self={};
-	$self->{vars}={};
+	my $f;
 	eval {
-		$self->{first}=Dotiac::DTL::Compiled->new($name);
+		$f=Dotiac::DTL::Compiled->new($name);
 		1;
 	} or do {
 		croak "Error while getting compiled template from $name\n $@\n.";
 		undef $@;
 	};
-	bless $self,$class;
-	
+	return "Dotiac::DTL::Template"->new($f);
 }
 
-sub param {
-	my $self=shift;
-	my $name=shift;
-	$self->{vars}->{$name}=shift if @_;
-	return $self->{vars}->{$name};
-}
 
-sub string {
-	my $self=shift;
-	my $vars=shift || {};
-	Dotiac::DTL::Addon::restore();
-	%blocks=();
-	%cycle=();
-	%globals=();
-	eval {
-		return $self->{first}->string({%{$self->{vars}},%{$vars}},$AUTOESCAPING);
-		1;
-	} or do {
-		croak "Error while rendering output to string\n $@\n.";
-		undef $@;
-	};
-}
-
-sub render {
-	my $self=shift;
-	return $self->string(@_);
-}
-sub output {
-	my $self=shift;
-	return $self->string(@_);
-}
-
-sub print {
-	my $self=shift;
-	my $vars=shift || {};
-	Dotiac::DTL::Addon::restore();
-	%blocks=();
-	%cycle=();
-	%globals=();
-	eval {
-		$self->{first}->print({%{$self->{vars}},%{$vars}},$AUTOESCAPING);
-		1;
-	} or do {
-		croak "Error while printing output\n $@\n.";
-		undef $@;
-	};
-}
 
 sub urlencode {
 	my $val=shift;
@@ -410,6 +358,7 @@ sub devar_var {
 		return Dotiac::DTL::Value->safe($param->{"block.super"}->string($param,@_)) if Scalar::Util::blessed($param->{"block.super"});
 		return Dotiac::DTL::Value->safe($param->{"block.super"}->($param,@_)) if ref $param->{"block.super"} eq "CODE";
 	}
+	return Dotiac::DTL::Value->new($param->{$name},!$escape) if $param->{$name};
 	my @tree=split/\./,$name;
 	$name=shift @tree;
 	unless (exists $param->{$name}) {
@@ -549,6 +498,12 @@ Default format for the date-filter if there is no format given. (Defaults to 'N 
 =head3 $Dotiac::DTL::TIME_FORMAT
 
 Default format for the time-filter if there is no format given. (Defaults to 'P')
+
+=head3 $Dotiac::DTL::PARSER
+
+Which parser Dotiac::DTL should use. Defaults to "Dotiac::DTL::Parser", the normal Dotiac parser.
+
+You only should change this, if you know what you are doing.
 
 =head2 Static internal variables
 
