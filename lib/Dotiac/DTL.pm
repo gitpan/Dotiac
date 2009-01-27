@@ -2,7 +2,7 @@
 #DTL.pm
 #Last Change: 2008-01-19
 #Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.5
+#Version 0.6
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -16,12 +16,9 @@
 
 
 package Dotiac::DTL;
+use base qw/Dotiac::DTL::Core/; #This is only used to make Test::Pod::Coverage, since most functions in the Dotiac::DTL namespace are documented in that file.
 require Dotiac::DTL::Parser;
 require Dotiac::DTL::Compiled;
-
-BEGIN {
-	require Dotiac::DTL::Core;
-}
 require Digest::MD5;
 use Carp qw/confess/;
 use strict;
@@ -32,7 +29,7 @@ require File::Basename;
 
 our @EXPORT=();
 our @EXPORT_OK=qw/Context Template/;
-our $VERSION = 0.5;
+our $VERSION = 0.6;
 
 
 
@@ -253,7 +250,7 @@ See new(FILE, COMPILE)
 
 =back
 
-Returns a Dotiac::DTL object.
+Returns a L<Dotiac::DTL::Template> object.
 
 =head3 Context(HASHREF)
 
@@ -331,7 +328,13 @@ If you want to use only compiled templates, see L<Dotiac::DTL::Reduced>, which s
 
 =back
 
-Returns a Dotiac::DTL object.
+Returns a L<Dotiac::DTL::Template> object.
+
+=head3 newandcompile(FILENAME)
+
+Same as new (FILENAME,1), which means: Compiles the template if it is not already compiled and recompiles if the compiled one is older.
+
+Returns a L<Dotiac::DTL::Template> object.
 
 =cut
 

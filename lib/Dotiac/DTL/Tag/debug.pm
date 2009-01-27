@@ -1,7 +1,7 @@
 #debug.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.5
+#Version 0.6
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -19,6 +19,8 @@ use strict;
 use warnings;
 use Data::Dumper;
 use Carp;
+
+our $VERSION = 0.6;
 
 sub new {
 	my $class=shift;

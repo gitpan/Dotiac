@@ -1,3 +1,12 @@
+0.6
+
+Fixed bug in {% url %} with autoescaping
+Added example (blog.pl)
+Added Test::Pod::Coverage
+Made Test::Pod::Coverage not fail.
+Fixed bugs in META.yml
+Added version to every module.
+
 0.5
 
 Extracted Parser/Template into seperate files

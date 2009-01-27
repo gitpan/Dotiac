@@ -2,7 +2,7 @@
 #Parser.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.5
+#Version 0.6
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -19,6 +19,7 @@ require Dotiac::DTL::Tag;
 require Dotiac::DTL::Filter;
 require Dotiac::DTL::Variable;
 require Dotiac::DTL::Comment;
+our $VERSION = 0.6;
 
 use strict;
 use warnings;
@@ -145,7 +146,7 @@ sub parse {
 __END__
 =head1 NAME
 
-Dotiac::DTL::Template - A Dotiac/Django template.
+Dotiac::DTL::Parser - The default Django/Dotiac parser
 
 =head1 SYNOPSIS
 
@@ -157,59 +158,71 @@ Dotiac::DTL::Template - A Dotiac/Django template.
 
 =head3 new(FILE) or new(FILE,COMPILE)
 
-Creates a new empty Dotiac::DTL::Template, don't use this, use Dotiac::DTL->new(FILE,COMPILE).
+Creates a new empty Dotiac::DTL::Parser, used by Dotiac::DTL->new().
 
 =head2 Methods
 
-=head3 param(NAME, VALUE)
+=head3 parse(TEMPLATEREF,POSITIONREF, [FOUNDREF, List,of,endtags,to,look,for])
 
-Works like HTML::Templates param() method, will set a param that will be used for output generation.
+Parses the string referenced in TEMPLATEREF starting at the position referenced in POSITIONREF.
 
-	my $t=Dotiac::DTL->new("file.html");
-	$t->param(FOO=>"bar");
-	$t->print();
-	#Its the same as:
-	my $t=Dotiac::DTL->new("file.html");
-	$t->print({FOO=>"bar"});
+Returns the parsed templatedata if either one of the endtags is found (and sets FOUNDREF to the endtag) or the end of the string is reached.
 
-=over
+This is used by tags to look for their endtag. For example the ifequal tag:
 
-=item NAME
+	sub new {
+		my $class=shift;
+		my $self={p=>shift()}; #Text that came before the tag.
+		my $data=shift; #Content of the tag other than the name.
+		my $obj=shift;
+		my $data=shift; #Templatedataref
+		my $pos=shift;  #and positionref from the parse() calling this tags new().
+		my $found=""; #Empty found
+		$self->{true}=$obj->parse($data,$pos,\$found,"else","endifequal"); #Search for either "else" or "endifequal" and set it to $found.
+		if ($found eq "else") {
+			$self->{false}=$obj->parse($data,$pos,\$found,"endifequal"); #If "else" was found, search for "endifequal"
+		}
+		($self->{var1},$self->{var2},undef)=Dotiac::DTL::get_variables($data);
+		bless $self,$class;
+		return $self;
+	}
+	#....
 
-Name of the parameter.
+=head4 Note
 
-=item VALUE
+Dotiac::DTL::Reduced doesn't support this, so it doesn't have to load all the tags or the parser.
 
-Value to set the parameter to.
+=head3 unparsed(TEMPLATEREF,POSITIONREF, [FOUNDREF, STARTTAG, List,of,endtags,to,look,for])
 
-=back
+Parses the string referenced in TEMPLATEREF starting at the position referenced in POSITIONREF.
 
-Returns the value of the param NAME if VALUE is skipped.
+Returns the unparsed templatedata if either one of the endtags is found (and sets FOUNDREF to the endtag) or the end of the string is reached.
 
-=head3 string(HASHREF)
+Skips STARTTAG occurences and searches for additional endtags
 
-Returns the templates output.
+This is used by tags to look for their endtag. For example an unparsed tag:
 
-=over
+	sub new {
+		my $class=shift;
+		my $self={p=>shift()}; #Text that came before the tag.
+		my $data=shift; #Content of the tag other than the name.
+		my $obj=shift;
+		my $data=shift; #Templatedataref
+		my $pos=shift;  #and positionref from the parse() calling this tags new().
+		my $found=""; #Empty found
+		$self->{content}=$obj->unparsed($data,$pos,\$found,"unparsed","endunparsed");
+		bless $self,$class;
+		return $self;
+	}
+	#....
 
-=item HASHREF
+=head4 Note
 
-Parameters to give to the template. See Variables below.
+There is no internal tag for now that needs this. But you might find some addons.
 
-=back
+I planned this for a addon like Calypso DTL's {% ajax %} tag, that throws the unparsed template at DojoxDTL to render it in the browser.
 
-=head3 output(HASHREF) and render(HASHREF)
-
-Same as string(HASHREF) just for HTML::Template and Django syntax.
-
-=head3 print(HASHREF) 
-
-You can think of these two being equal:
-
-	print $t->string(HASHREF);
-	$t->print(HASHREF);
-
-But string() can cause a lot of memory to be used (on large templates), so print() will print to the default output handle as soon as it has some data, which uses a lot less memory.
+Dotiac::DTL::Reduced doesn't support this either.
 
 =head1 SEE ALSO
 

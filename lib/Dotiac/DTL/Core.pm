@@ -2,7 +2,7 @@
 #Core.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.5
+#Version 0.6
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -16,7 +16,7 @@
 
 package Dotiac::DTL::Core;
 
-our $VERSION="0.5";
+our $VERSION = 0.6;
 
 package Dotiac::DTL;
 require Dotiac::DTL::Value;
@@ -215,7 +215,7 @@ sub get_variables {
 
 sub Escape {
 	my $var=shift;
-	return Dotiac::DTL::Filter::force_escape($var) if $_[0];
+	return Dotiac::DTL::Value->escape($var)->string() if $_[0];
 	return $var;
 }
 
@@ -672,72 +672,6 @@ Parameters to give to the template. See Variables below.
 
 Returns nothing.
 
-=head2 Internal methods
-
-These are used internally only, they should only be called by new() or tags.
-
-=head3 parse(TEMPLATEREF,POSITIONREF, [FOUNDREF, List,of,endtags,to,look,for])
-
-Parses the string referenced in TEMPLATEREF starting at the position referenced in POSITIONREF.
-
-Returns the parsed templatedata if either one of the endtags is found (and sets FOUNDREF to the endtag) or the end of the string is reached.
-
-This is used by tags to look for their endtag. For example the ifequal tag:
-
-	sub new {
-		my $class=shift;
-		my $self={p=>shift()}; #Text that came before the tag.
-		my $data=shift; #Content of the tag other than the name.
-		my $obj=shift;
-		my $data=shift; #Templatedataref
-		my $pos=shift;  #and positionref from the parse() calling this tags new().
-		my $found=""; #Empty found
-		$self->{true}=$obj->parse($data,$pos,\$found,"else","endifequal"); #Search for either "else" or "endifequal" and set it to $found.
-		if ($found eq "else") {
-			$self->{false}=$obj->parse($data,$pos,\$found,"endifequal"); #If "else" was found, search for "endifequal"
-		}
-		($self->{var1},$self->{var2},undef)=Dotiac::DTL::get_variables($data);
-		bless $self,$class;
-		return $self;
-	}
-	#....
-
-=head4 Note
-
-Dotiac::DTL::Reduced doesn't support this, so it doesn't have to load all the tags or the parser.
-
-=head3 unparsed(TEMPLATEREF,POSITIONREF, [FOUNDREF, STARTTAG, List,of,endtags,to,look,for])
-
-Parses the string referenced in TEMPLATEREF starting at the position referenced in POSITIONREF.
-
-Returns the unparsed templatedata if either one of the endtags is found (and sets FOUNDREF to the endtag) or the end of the string is reached.
-
-Skips STARTTAG occurences and searches for additional endtags
-
-This is used by tags to look for their endtag. For example an unparsed tag:
-
-	sub new {
-		my $class=shift;
-		my $self={p=>shift()}; #Text that came before the tag.
-		my $data=shift; #Content of the tag other than the name.
-		my $obj=shift;
-		my $data=shift; #Templatedataref
-		my $pos=shift;  #and positionref from the parse() calling this tags new().
-		my $found=""; #Empty found
-		$self->{content}=$obj->unparsed($data,$pos,\$found,"unparsed","endunparsed");
-		bless $self,$class;
-		return $self;
-	}
-	#....
-
-=head4 Note
-
-There is no internal tag for now that needs this. But you might find some addons.
-
-I planned this for a addon like Calypso DTL's {% ajax %} tag, that throws the unparsed template at DojoxDTL to render it in the browser.
-
-Dotiac::DTL::Reduced doesn't support this either.
-
 =head2 Internal static functions
 
 =head3 escap(STRING)
@@ -770,7 +704,7 @@ inversion of escap().
 
 Called by devar() and apply_filters(), no need to call it anywhere else.
 
-=head3 get_varibales(STRING, [SPLIT,BY])
+=head3 get_variables(STRING, [SPLIT,BY])
 
 Spilts a string, as given by the parser, into variables, which can be given to devar.
 

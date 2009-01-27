@@ -68,7 +68,7 @@ dtest("tag_regroup.html","ABACABA\n",{loop=>[{name=>"A",text=>"B"},{name=>"A",te
 dtest("tag_regroup2.html","aBAcAbA\n",{loop=>[{name=>"A",text=>"B"},{name=>"A",text=>"A"},{name=>"C",text=>"A"},{name=>"B",text=>"A"}]});
 dtest("tag_spaceless.html","<br> <br>  AB  <p> </p> <b> BA </b> <br>\n",{});
 dtest("tag_templatetags.html","{%%}{{}}{}{##}\n",{});
-dtest("tag_url.html","A/bee?zee=dii&E=F A/BEE?ZEE=DII&E=F\n",{B=>"bee",C=>"zee",D=>"dii",E=>"EEH"});
+dtest("tag_url.html","A/bee?zee=dii&amp;E=F A/BEE?ZEE=DII&E=F A/bee?zee=dii&E=F A/BEE?ZEE=DII&amp;E=F\n",{B=>"bee",C=>"zee",D=>"dii",E=>"EEH"});
 dtest("tag_widthratio.html","A20C17A\n",{A=>14,B=>28});
 my $x=new foo;
 dtest("tag_with.html","ABaCCaBA\n",{foo=>$x,X=>{X=>"a"}});

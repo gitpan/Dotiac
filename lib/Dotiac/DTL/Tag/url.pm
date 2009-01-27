@@ -1,7 +1,7 @@
 #url.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.5
+#Version 0.6
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -17,6 +17,8 @@ package Dotiac::DTL::Tag::url;
 use base qw/Dotiac::DTL::Tag/;
 use strict;
 use warnings;
+
+our $VERSION = 0.6;
 
 #Bugs: Url in var (as) must be marked safe manually
 sub new {
@@ -55,10 +57,10 @@ sub print {
 	print $self->{p};
 	#print join("/",map {Dotiac::DTL::devar($_,@_)} @{$self->{path}}),(@{$self->{query}}?"?".join("&",map {join "=",map {Dotiac::DTL::devar($_,@_)} @{$_}} @{$self->{query}}:"");
 	if ($self->{var}) {
-		$vars->{$self->{var}} = join("/",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),":/")->string()} @{$self->{path}}).(@{$self->{query}}?"?".join("&",map {join "=",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),"")->string()} @{$_}} @{$self->{query}}):"");
+		$vars->{$self->{var}} = join("/",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),":/")->repr()} @{$self->{path}}).(@{$self->{query}}?"?".join("&",map {join "=",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),"")->repr()} @{$_}} @{$self->{query}}):"");
 	}
 	else {
-		print join("/",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),":/")->string()} @{$self->{path}}),(@{$self->{query}}?"?".join("&",map {join "=",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),"")->string()} @{$_}} @{$self->{query}}):"");
+		print Dotiac::DTL::Escape(join("/",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),":/")->repr()} @{$self->{path}}).(@{$self->{query}}?"?".join("&",map {join "=",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),"")->repr()} @{$_}} @{$self->{query}}):""),$escape);
 	}
 	$self->{n}->print($vars,$escape,@_);
 }
@@ -67,10 +69,10 @@ sub string {
 	my $vars=shift;
 	my $escape=shift;
 	if ($self->{var}) {
-		$vars->{$self->{var}} = join("/",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),":/")->string()} @{$self->{path}}).(@{$self->{query}}?"?".join("&",map {join "=",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),"")->string()} @{$_}} @{$self->{query}}):"");
+		$vars->{$self->{var}} = join("/",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),":/")->repr()} @{$self->{path}}).(@{$self->{query}}?"?".join("&",map {join "=",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),"")->repr()} @{$_}} @{$self->{query}}):"");
 		return $self->{p}.$self->{n}->string($vars,$escape,@_);
 	}
-	return $self->{p}.join("/",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),":/")->string()} @{$self->{path}}).(@{$self->{query}}?"?".join("&",map {join "=",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),"")->string()} @{$_}} @{$self->{query}}):"").$self->{n}->string($vars,$escape,@_);
+	return $self->{p}.Dotiac::DTL::Escape(join("/",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),":/")->repr()} @{$self->{path}}).(@{$self->{query}}?"?".join("&",map {join "=",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),"")->repr()} @{$_}} @{$self->{query}}):""),$escape).$self->{n}->string($vars,$escape,@_);
 	
 }
 sub perl {
@@ -96,10 +98,10 @@ sub perlprint {
 	my $level=shift;
 	$self->SUPER::perlprint($fh,$id,$level,@_);
 	if ($self->{var}) {
-		print $fh "\t" x $level,"\$vars->{\$var$id}=join(\"/\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,\$escape,\@_),\":/\")->string()} \@{\$path$id}).(\@{\$query$id}?\"?\".join(\"&\",map {join \"=\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\"\")->string()} \@{\$_}} \@{\$query$id}):\"\");\n";
+		print $fh "\t" x $level,"\$vars->{\$var$id}=join(\"/\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,\$escape,\@_),\":/\")->repr()} \@{\$path$id}).(\@{\$query$id}?\"?\".join(\"&\",map {join \"=\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\"\")->repr()} \@{\$_}} \@{\$query$id}):\"\");\n";
 	}
 	else {
-		print $fh "\t" x $level,"print join(\"/\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,\$escape,\@_),\":/\")->string()} \@{\$path$id}),(\@{\$query$id}?\"?\".join(\"&\",map {join \"=\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\"\")->string()} \@{\$_}} \@{\$query$id}):\"\");\n";
+		print $fh "\t" x $level,"print Dotiac::DTL::Escape(join(\"/\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,\$escape,\@_),\":/\")->repr()} \@{\$path$id}).(\@{\$query$id}?\"?\".join(\"&\",map {join \"=\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\"\")->repr()} \@{\$_}} \@{\$query$id}):\"\"),\$escape);\n";
 	}
 	return $self->{n}->perlprint($fh,$id+1,$level,@_);
 }
@@ -110,10 +112,10 @@ sub perlstring {
 	my $level=shift;
 	$self->SUPER::perlstring($fh,$id,$level,@_);
 	if ($self->{var}) {
-		print $fh "\t" x $level,"\$vars->{\$var$id}=join(\"/\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\":/\")->string()} \@{\$path$id}).(\@{\$query$id}?\"?\".join(\"&\",map {join \"=\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\"\")->string()} \@{\$_}} \@{\$query$id}):\"\");\n";
+		print $fh "\t" x $level,"\$vars->{\$var$id}=join(\"/\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\":/\")->repr()} \@{\$path$id}).(\@{\$query$id}?\"?\".join(\"&\",map {join \"=\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\"\")->repr()} \@{\$_}} \@{\$query$id}):\"\");\n";
 	}
 	else {
-		print $fh "\t" x $level,"\$r.=join(\"/\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\":/\")->string()} \@{\$path$id}).(\@{\$query$id}?\"?\".join(\"&\",map {join \"=\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\"\")->string()} \@{\$_}} \@{\$query$id}):\"\");\n";
+		print $fh "\t" x $level,"\$r.=Dotiac::DTL::Escape(join(\"/\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\":/\")->repr()} \@{\$path$id}).(\@{\$query$id}?\"?\".join(\"&\",map {join \"=\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\"\")->repr()} \@{\$_}} \@{\$query$id}):\"\"),\$escape);\n";
 	}
 	return $self->{n}->perlstring($fh,$id+1,$level,@_);
 }
@@ -128,7 +130,7 @@ sub perleval {
 	my $id=shift;
 	my $level=shift;
 	if ($self->{var}) {
-		print $fh "\t" x $level,"\$vars->{\$var$id}=join(\"/\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,\$escape,\@_),\":/\")->string()} \@{\$path$id}).(\@{\$query$id}?\"?\".join(\"&\",map {join \"=\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\"\")->string()} \@{\$_}} \@{\$query$id}):\"\");\n";
+		print $fh "\t" x $level,"\$vars->{\$var$id}=join(\"/\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,\$escape,\@_),\":/\")->repr()} \@{\$path$id}).(\@{\$query$id}?\"?\".join(\"&\",map {join \"=\",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw(\$_,\$vars,0,\@_),\"\")->repr()} \@{\$_}} \@{\$query$id}):\"\");\n";
 	}
 	return $self->{n}->perleval($fh,$id+1,$level,@_);
 }
@@ -147,7 +149,7 @@ sub eval {
 	my $vars=shift;
 	my $escape=shift;
 	if ($self->{var}) {
-		$vars->{$self->{var}} = join("/",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),":/")->string()} @{$self->{path}}).(@{$self->{query}}?"?".join("&",map {join "=",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),"")->string()} @{$_}} @{$self->{query}}):"");
+		$vars->{$self->{var}} = join("/",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),":/")->repr()} @{$self->{path}}).(@{$self->{query}}?"?".join("&",map {join "=",map {Dotiac::DTL::Filter::urlencode(Dotiac::DTL::devar_raw($_,$vars,0,@_),"")->repr()} @{$_}} @{$self->{query}}):"");
 	}
 	$self->{n}->eval($vars,$escape,@_);
 }

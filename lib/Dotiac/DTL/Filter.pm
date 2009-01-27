@@ -2,7 +2,7 @@
 #Filter.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.5
+#Version 0.6
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -18,6 +18,8 @@ package Dotiac::DTL::Filter;
 use strict;
 use warnings;
 require Scalar::Util;
+our $VERSION = 0.6;
+
 sub add {
 	my $value=shift;
 	my $add=shift;
@@ -1042,7 +1044,7 @@ sub timesince {
 		$comp=CORE::time();
 	}
 	my $dist=$comp-$val;
-	return "0 $timenames[11]" if $dist < 60;
+	return Dotiac::DTL::Value->safe("0 $timenames[11]") if $dist < 60;
 	my $mi=int($dist/60);
 	my $h=int($mi/60);
 	$mi=$mi%60;
@@ -1084,7 +1086,7 @@ sub timeuntil {
 		$comp=CORE::time();
 	}
 	my $dist=$val-$comp;
-	return "0 $timenames[11]" if $dist < 60;
+	return Dotiac::DTL::Value->safe("0 $timenames[11]") if $dist < 60;
 	my $mi=int($dist/60);
 	my $h=int($mi/60);
 	$mi=$mi%60;
@@ -1954,7 +1956,7 @@ This won't work on EBCDIC Systems for now, sadly.
 
 If you find anything else, please report them.
 
-=head2 get_digit :STRING
+=head2 join :STRING
 
 Joins a list-value by a STRING.
 
@@ -1997,7 +1999,7 @@ Tries to call count() on objects to get the length.
 
 C<undef> (C<none> in python) will be counted as "".
 
-=head2 length_is: LENGTH
+=head2 length_is :LENGTH
 
 Returns 1 if the length of arrays, lists or strings is equal to LENGTH, "" otherwise.
 
@@ -2150,7 +2152,7 @@ For Debug
 
 Uses Data::Dumper instead of pprint
 
-=head2 last
+=head2 random
 
 Returns a random element of a list. (See also C<first> and C<last>)
 
@@ -2163,7 +2165,7 @@ Returns a random element of a list. (See also C<first> and C<last>)
 
 Also returns a random value of a hash.
 
-=head2 removetags: TAGS
+=head2 removetags :TAGS
 
 Removes HTML (XML) TAGS from the value. TAGS is a space seperated list of tags to be removed
 
@@ -2544,7 +2546,7 @@ The returned value is always escaped (if unsafe) and marked safe.
 
 The old verbose format is supported, but I don't trust the implementation. (It works, I don't know why)
 
-=head2 upper
+=head2 urlencode
 
 Converts all characters except wordcharacters, minus, "~" and "/" to be used in an url
 

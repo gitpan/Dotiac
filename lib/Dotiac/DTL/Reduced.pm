@@ -2,7 +2,7 @@
 #Reduced.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.5
+#Version 0.6
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -15,16 +15,19 @@
 ###############################################################################
 
 package Dotiac::DTL::Reduced;
+use base qw/Dotiac::DTL::Core/;
 BEGIN {
 	require Dotiac::DTL::Filter;
 	require Dotiac::DTL::Compiled;
-	require Dotiac::DTL::Core;
+	
 };
 use Exporter;
 require File::Spec;
 
 our @EXPORT=();
 our @EXPORT_OK=qw/Context Template/;
+our $VERSION = 0.6;
+
 sub Template {
 	my $file=shift;
 	if (-e $file) {
@@ -109,7 +112,7 @@ The COMPILE parameter from L<Dotiac::DTL>->new() is ignored. It wouldn't work an
 
 =back
 
-Returns a Template object.
+Returns a L<Dotiac::DTL::Template> object.
 
 =head2 And what about my own compiled templates?
 
@@ -130,6 +133,37 @@ This works like it should: (See L<Dotiac::DTL::Compiled>)
 	package main;
 	require Dotiac::DTL;
 	my $mytemplate=Dotiac::DTL->compiled("MyTemplate");
+
+
+=head3 Template(FILE)
+
+Creates a template from FILE. This function is for Django like syntax, use new(FILE) for better results and control.
+
+=over
+
+=item FILE
+
+This can be a filename or a string containing the template data.
+
+Template() will search the current directory and @Dotiac::DTL::TEMPLATE_DIRS (See Core.pm) for either FILE, FILE.html or FILE.txt and open the first file found.
+
+If no file is found it treats FILE as template data and will parse the string.
+
+=back
+
+=head3 Context(HASHREF)
+
+Python's Django uses Context() to create a Context, Dotiac::DTL doesn't use this, it just uses a hash.
+
+=over
+
+=item HASHREF
+
+A Hash of parameters.
+
+=back
+
+Returns the first Argument.
 
 =head1 BUGS
 

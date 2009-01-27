@@ -51,6 +51,7 @@ t/7_special_noload.t
 t/8_old.t
 t/9_undoc_behavior.t
 t/4_pod.t
+t/4_pod_coverage.t
 t/comments.html
 t/datastructures.html
 t/Dotiac/DTL/Addon/customtext.pm
@@ -174,3 +175,15 @@ t/undoc_cycle.html
 t/variables.html
 t/variables1.html
 t/variables2.html
+examples/cgi-bin/blog.pl
+examples/cgi-bin/ConfigPathes.pm
+examples/cgi-bin/DataAccess.pm
+examples/persistent/blog_comments
+examples/persistent/blog_entry
+examples/README
+examples/templates/blog.html
+examples/templates/blog_base.html
+examples/templates/blog_error.html
+examples/templates/blog_new.html
+examples/templates/blog_view.html
+examples/templates/redirect.html

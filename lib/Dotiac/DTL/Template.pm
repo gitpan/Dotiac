@@ -2,7 +2,7 @@
 #Template.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.5
+#Version 0.6
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -18,7 +18,7 @@ package Dotiac::DTL::Template;
 require Dotiac::DTL::Core;
 require Dotiac::DTL::Addon;
 
-our $VERSION="0.4";
+our $VERSION = 0.6;
 
 use strict;
 use warnings;
@@ -31,11 +31,6 @@ sub new {
 	$self->{vars}={};
 	$self->{first}=shift;
 	return $self;
-}
-
-sub compiled {
-	my $class=shift;
-	return Dotiac::DTL->compiled(@_);
 }
 
 sub param {

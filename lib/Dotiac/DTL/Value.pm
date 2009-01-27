@@ -2,7 +2,7 @@
 #Value.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.5
+#Version 0.6
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -18,6 +18,8 @@ package Dotiac::DTL::Value;
 use strict;
 use warnings;
 require Scalar::Util;
+
+our $VERSION = 0.6;
 
 sub new {
 	my $class=shift;
@@ -44,7 +46,7 @@ sub safe {
 
 sub escape {
 	my $self=shift;
-	return Dotiac::DTL::Value->new(shift(@_),1) unless ref $self;
+	return Dotiac::DTL::Value->new(shift(@_),0) unless ref $self;
 	if (@_ and $_[0]) {
 		$self->[1]=0;
 	}
@@ -475,6 +477,13 @@ Returns the contained value.
 
 	print $value->content;
 
+=head3 get()
+
+Returns the contained value.
+
+	print $value->get;
+
+
 =head3 string()
 
 Returns the contained value in a readable way and escapes the output if it's marked as unsafe.
@@ -514,6 +523,19 @@ If you want to apply some functions on the value, regardless of content or escap
 Returns itself, so you can write (in a filter):
 
 	return $value->set("Foo") if $foo;
+
+
+=head3 pyrep
+
+Rekursive generator for pyrepr.
+
+=head3 rep
+
+Rekursive generator for repr.
+
+=head3 str
+
+Rekursive generator for string.
 
 =head1 BUGS
 
