@@ -2,7 +2,7 @@
 #DTL.pm
 #Last Change: 2008-01-19
 #Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.6
+#Version 0.7
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -29,7 +29,7 @@ require File::Basename;
 
 our @EXPORT=();
 our @EXPORT_OK=qw/Context Template/;
-our $VERSION = 0.6;
+our $VERSION = 0.7;
 
 
 
@@ -713,6 +713,14 @@ Please post any bugs and undokumented differences to Django you might find in th
 L<http://sourceforge.net/tracker/?group_id=249411&atid=1126348>
 
 I did not include "django.contrib.humanize", "django.contrib.markup" and "django.contrib.webdesign" in the Core distribution, since they require some other modules (especially markup). I will release them as Addons in CPAN.
+
+=head1 LICENSE
+
+This module is published under the terms of the MIT license, which basically 
+means "Do with it whatever you want". For more information, see the 
+LICENSE file that should be enclosed with this distributions. A copy of
+the license is (at the time of writing) also available at
+L<http://www.opensource.org/licenses/mit-license.php>.
 
 =head1 LEGAL
 

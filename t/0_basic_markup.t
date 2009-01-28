@@ -1,4 +1,15 @@
-use Test::More tests=>58;
+use Test::More tests => 59;;
+eval {
+	require Test::NoWarnings;
+	Test::NoWarnings->import();
+	1;
+} or do {
+	SKIP: {
+		skip "Test::NoWarnings is not installed", 1;
+		fail "This shouldn't really happen at all";
+	};
+};
+
 chdir "t";
 
 require_ok('Dotiac::DTL');
