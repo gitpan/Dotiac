@@ -51,8 +51,6 @@ t/7_special_noload.t
 t/7_special_reparse.t
 t/8_old.t
 t/9_undoc_behavior.t
-t/4_pod.t
-t/4_pod_coverage.t
 t/comments.html
 t/datastructures.html
 t/Dotiac/DTL/Addon/customtext.pm
@@ -189,3 +187,6 @@ examples/templates/blog_error.html
 examples/templates/blog_new.html
 examples/templates/blog_view.html
 examples/templates/redirect.html
+xt/meta.t
+xt/pod.t
+xt/pod_coverage.t
