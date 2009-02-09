@@ -2,7 +2,7 @@
 #DTL.pm
 #Last Change: 2008-01-19
 #Copyright (c) 2006 Marc-Seabstian "Maluku" Lucksch
-#Version 0.7
+#Version 0.8
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -17,8 +17,7 @@
 
 package Dotiac::DTL;
 use base qw/Dotiac::DTL::Core/; #This is only used to make Test::Pod::Coverage, since most functions in the Dotiac::DTL namespace are documented in that file.
-require Dotiac::DTL::Parser;
-require Dotiac::DTL::Compiled;
+require Dotiac::DTL::Tag;
 require Digest::MD5;
 use Carp qw/confess/;
 use strict;
@@ -29,7 +28,7 @@ require File::Basename;
 
 our @EXPORT=();
 our @EXPORT_OK=qw/Context Template/;
-our $VERSION = 0.7;
+our $VERSION = 0.8;
 
 
 
@@ -60,7 +59,6 @@ sub Context {
 }
 
 my %cache;
-our $PARSER="Dotiac::DTL::Parser";
 sub newandcompile {
 	my $class=shift;
 	return $class->new(@_,1);
@@ -69,26 +67,36 @@ sub newandcompile {
 {
 	no warnings "redefine";
 	sub new {
+		%Dotiac::DTL::params=();
 		my $class=shift;
 		my $data=shift; 
 		my $t="";
 		my $filename="from cache";
+		my $changetime=0;
 		my $compile=shift; #1 compile, 0 no recompile, -1 skip compiled even if its there, undef=use compiled if there, recompile if needed.
 		if (ref $data eq "SCALAR") {
 			$t=$$data;
 			$compile=0;
 			$filename="form SCALARref";
-			$Dotiac::DTL::currentdir="";
+			$Dotiac::DTL::currentdir=$Dotiac::DTL::CURRENTDIR;
 		}
 		elsif (not ref $data) {
 			$t=$data;
 			my @f = File::Basename::fileparse($data);
 			$Dotiac::DTL::currentdir=$f[1];
+			#warn "Cached:",Data::Dumper->Dump([\%cache]);
 			if (-e "$data.pm" and (($compile and $compile > 0) or not defined $compile)) {
 				if (-e $data) {
-					if (-M "$data.pm" < -M $data) {
+					if ((stat("$data.pm"))[9] > (stat("$data"))[9]) {
+						
 						eval {
-							$cache{"$data.pm"}=Dotiac::DTL::Compiled->new("Dotiac::DTL::Compiled::".require "$data.pm") unless ($cache{"$data.pm"});
+							$cache{"$data.pm"}={
+								template=>Dotiac::DTL::Compiled->new("Dotiac::DTL::Compiled::".require "$data.pm"),
+								currentdir=>$Dotiac::DTL::currentdir,
+								params=>{%Dotiac::DTL::params},
+								parser=>$Dotiac::DTL::PARSER,
+								changetime=>(stat("$data.pm"))[9]
+							} if not $cache{"$data.pm"};# or (exists $cache{"$data.pm"}->{changetime} and $cache{"$data.pm"}->{changetime} > -M "$data.pm");
 							$t="$data.pm";
 							$compile=0;
 							1;
@@ -99,12 +107,24 @@ sub newandcompile {
 					}
 					else {
 						delete $cache{"$data.pm"};
+						delete $INC{"$data.pm"}; #Otherwise it won't work.
 						$compile=1 if $compile or not defined $compile;
 					}
 				}
 				else { # $data is not more here, but $data.pm is, use that one than.
+					if ($cache{"$data.pm"} and exists $cache{"$data.pm"}->{changetime} and $cache{"$data.pm"}->{changetime} < (stat("$data.pm"))[9]) {
+						carp "Foo";
+						delete $cache{"$data.pm"};
+						delete $INC{"$data.pm"};
+					}
 					eval {
-						$cache{"$data.pm"}=Dotiac::DTL::Compiled->new("Dotiac::DTL::Compiled::".require "$data.pm") unless ($cache{"$data.pm"});
+						$cache{"$data.pm"}={
+							template=>Dotiac::DTL->compiled("Dotiac::DTL::Compiled::".require "$data.pm"),
+							currentdir=>$Dotiac::DTL::currentdir,
+							params=>{%Dotiac::DTL::params},
+							parser=>$Dotiac::DTL::PARSER,
+							changetime=>(stat("$data.pm"))[9]
+						} if not $cache{"$data.pm"};# or (exists $cache{"$data.pm"}->{changetime} and $cache{"$data.pm"}->{changetime} > -M "$data.pm");
 						$t="$data.pm";
 						$compile=0;
 						1;
@@ -114,12 +134,16 @@ sub newandcompile {
 					};	
 				}
 			}
+			if ($cache{$t} and $t eq $data and exists $cache{$t}->{changetime} and $cache{$t}->{changetime} < (stat("$t"))[9]) {
+				delete $cache{$t};
+			}
 			unless ($cache{$t})  {	
 				open my $fh,"<",$data or croak "Can't open template $data: $!";
 				binmode $fh;
 				my $a=do {local $/,<$fh>};
 				close $fh;
 				$filename="\"$data\"";
+				$changetime=(stat("$data"))[9];
 				$data=\$a;
 			}
 		}
@@ -127,11 +151,23 @@ sub newandcompile {
 			die "Can't work with $data!";
 		}
 		unless ($cache{$t}) {
-			$cache{$t}=Dotiac::DTL::Tag->new("include/extend cycle detected"); #This prevents cycled includes to screw around during parsing time.
+			eval "require $Dotiac::DTL::PARSER;" or croak "Can't load Parser '$Dotiac::DTL::PARSER': $@";
 			my $parser=$Dotiac::DTL::PARSER->new();
+			$cache{$t}={
+				template=>Dotiac::DTL::Tag->new("include/extend cycle detected"), #This prevents cycled includes to screw around during parsing time.
+				currentdir=>$Dotiac::DTL::currentdir,
+				params=>{%Dotiac::DTL::params},
+				parser=>$Dotiac::DTL::PARSER
+			};
 			my $pos=0;
 			eval {
-				$cache{$t}=$parser->parse($data,\$pos);
+				$cache{$t}={
+					template=>$parser->parse($data,\$pos),
+					currentdir=>$Dotiac::DTL::currentdir,
+					params=>{%Dotiac::DTL::params},
+					parser=>$Dotiac::DTL::PARSER,
+					changetime=>$changetime
+				};
 				1;
 			} or do {
 				croak "Error while getting template $filename:\n $@\n.";
@@ -144,20 +180,23 @@ sub newandcompile {
 					require Data::Dumper;
 					$Data::Dumper::Indent=2;
 					$Data::Dumper::Useqq=1;
+					my $template=$cache{$t}->{template};
 					my $digest=Digest::MD5::md5_hex($t);
 					print $cp "#Autogenerated\n";
-					print $cp "package Dotiac::DTL::Compiled::$digest;\nuse strict;\nuse warnings;\nrequire Scalar::Util;\n"; 
-					$cache{$t}->perl($cp,0,$digest);
+					print $cp "package Dotiac::DTL::Compiled::$digest;\nuse strict;\nuse warnings;\nrequire Scalar::Util;\n#PARAMS USED:\nour "; 
+
+					print $cp (Data::Dumper->Dump([$cache{$t}->{params}],["\$params"]));
+					$template->perl($cp,0,$digest);
 					print $cp "\n#INIT\n";
-					$cache{$t}->perlinit($cp,0,$digest);
+					$template->perlinit($cp,0,$digest);
 					print $cp "\nsub string {\n	my \$vars=shift;\n	my \$escape=shift;\n	my \$r=\"\";\n";
-					$cache{$t}->perlstring($cp,0,1,$digest);
+					$template->perlstring($cp,0,1,$digest);
 					print $cp "	return \$r;\n}\n";
 					print $cp "sub print {\n	my \$vars=shift;\n	my \$escape=shift;\n";
-					$cache{$t}->perlprint($cp,0,1,$digest);
+					$template->perlprint($cp,0,1,$digest);
 					print $cp "}\n";
 					print $cp "sub eval {\n	my \$vars=shift;\n	my \$escape=shift;\n";
-					$cache{$t}->perleval($cp,0,1,$digest);
+					$template->perleval($cp,0,1,$digest);
 					print $cp "}\n";
 					print $cp qq("$digest";);
 					close $cp;
@@ -171,7 +210,8 @@ sub newandcompile {
 				carp "Can't open output to $$data.pm while compiling: $!";
 			}
 		}
-		return "Dotiac::DTL::Template"->new($cache{$t});
+		Dotiac::DTL::Addon::restore();
+		return "Dotiac::DTL::Template"->new($cache{$t}->{template},$cache{$t}->{currentdir},$cache{$t}->{parser},$cache{$t}->{params});
 	}
 }
 1;
@@ -550,7 +590,7 @@ There are some differences with the original template implementation of Django:
 
 I wrote this using just the documentation, so it will differ a lot on undokumented features, If you are missing something or notice something not listed here, drop me a mail.
 
-One mayor difference is: Python has a default string representation for objects (__str__()), Perl doesn't. So if you writing an object into the template it will appear as a perl pointer. This will change as soon as I get a nice idea how to solve this.
+One mayor difference is: Python has a default string representation for objects (__str__()), Perl doesn't. So if you writing an object into the template it will appear as a perl pointer. For a solution to this see above.
 
 The perl side interface is quite different from the Python one:
 	
@@ -564,14 +604,14 @@ This was to un-Perl for me, so this follows the HTML::Template way:
 
 	require Dotiac::DTL;
 	my $text="My name is {{ my_name }}.";
-	my $t=Dotiac::DTL::new("file.html");
+	my $t=Dotiac::DTL->new("file.html");
 	#or
-	my $t=Dotiac::DTL::new(\$text);
+	my $t=Dotiac::DTL->new(\$text);
 	$t->string({my_name=>"Adrian"});
 	#or 
 	$t->print({my_name=>"Adrian"});
 	
-There is also a Django-like interface, but the one above is more clear.
+There is also a Django-like interface.
 
 	use Dotiac::DTL qw/Template Context/;
 	my $t = Template("file"); #This also looks in @Dotiac::DTL::TEMPLATE_DIRS for file, file.html and file.txt if nothing exists, it treats file as a string.
@@ -583,9 +623,21 @@ There is also a Django-like interface, but the one above is more clear.
 
 =head3 Tag: load
 
-The tag {% load %} will work the some, but do something else.
+The tag {% load %} will work, but do something else internally.
 
 Look at L<Dotiac::DTL::Addon> and  L<Dotiac::DTL::Tag::load> for information.
+
+The greatest difference is: 
+
+In Django the load doesn't affect included templates, in Dotiac::DTL load is global, this means you can do this:
+
+load.html:
+
+	{% load lib1 lib2 lib3 someohterlibrary %}
+
+template.html:
+
+	{% include "load.html" %} {{ text|lib1filter }}
 
 =head3 Adding filters and Tags
 
@@ -611,7 +663,9 @@ B<All parameters to filters are> L<Dotiac::DTL::Value>B<-objects and the filter 
 
 =head3 Tag: url
 
-This one can't work without a complete django backend. If you have such a backendm you will have to overwrite the Dotiac::DTL::Tag::url module.
+This one can't work without a complete django backend. If you have such a backend you will have to overwrite the Dotiac::DTL::Tag::url module.
+
+However, it tries to do the right thing.
 
 =head3 Parsing
 
@@ -628,9 +682,18 @@ Some tags will also die() if the syntax is wrong.
 The normal Django templates only support a method that converts them into a long string. I added a print() method which prints directly to the current output handle. 
 This should be easier on the memory and might even a bit faster.
 
-=head3 Tag: ifchanged
+=head3 More filter arguments
 
-Also supports {% else %} if nothing has changed. I thought it might be useful.
+I thought it might be useful to allow filters to have multiple arguments, this is only useful for your own filters and some of the inofficial extension in this module. Arguments can be seperated by either a comma "," or a semicolon ";" (In some tags commas are used to split arguments, its better to always use ";")
+
+	{{ "Hello"|center:"20","-" }}
+	{% for x in  "Hello"|center:"20";"-"|make_list %}
+
+
+
+=head3 Other changes:
+
+There are some additional features to some tags and filters ( {% else %} in {% ifchanged %}, padding chars in |center |left and |right )
 
 =head2 Speed
 

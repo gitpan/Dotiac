@@ -2,7 +2,7 @@
 #Filter.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.7
+#Version 0.8
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -18,7 +18,7 @@ package Dotiac::DTL::Filter;
 use strict;
 use warnings;
 require Scalar::Util;
-our $VERSION = 0.7;
+our $VERSION = 0.8;
 
 sub add {
 	my $value=shift;

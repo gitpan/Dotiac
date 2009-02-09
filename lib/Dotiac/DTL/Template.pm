@@ -2,7 +2,7 @@
 #Template.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.7
+#Version 0.8
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -18,42 +18,63 @@ package Dotiac::DTL::Template;
 require Dotiac::DTL::Core;
 require Dotiac::DTL::Addon;
 
-our $VERSION = 0.7;
+our $VERSION = 0.8;
 
 use strict;
 use warnings;
 use Carp;
-
+ 
 sub new {
 	my $class=shift;
 	my $self={};
 	bless $self,$class;
 	$self->{vars}={};
 	$self->{first}=shift;
+	$self->{currentdir}=shift(@_) || $Dotiac::DTL::CURRENTDIR;
+	$self->{parser}=shift(@_) || $Dotiac::DTL::PARSER;
+	if (@_) {
+		#$self->{params}=[keys %{shift(@_)}];
+		$self->{params}=[grep {substr($_,0,1) ne "`"} sort keys %{shift(@_)}];
+	}
+	else {
+		#$self->{params}=[keys %Dotiac::DTL::params];
+		$self->{params}=[grep {substr($_,0,1) ne "`"} sort keys %Dotiac::DTL::params];
+	}
 	return $self;
 }
 
 sub param {
 	my $self=shift;
-	my $name=shift;
-	$self->{vars}->{$name}=shift if @_;
-	return $self->{vars}->{$name};
+	my $name="";
+	return @{$self->{params}} unless @_;
+	while (@_) {
+		$name=shift;
+		$self->{vars}->{$name}=shift if @_;
+	}
+	return $self->{vars}->{$name} if $name;
+	
 }
 
 sub string {
 	my $self=shift;
-	my $vars=shift || {};
-	Dotiac::DTL::Addon::restore();
+	my $vars=shift || {};	
 	%Dotiac::DTL::blocks=();
 	%Dotiac::DTL::cycle=();
 	%Dotiac::DTL::globals=();
+	$Dotiac::DTL::currentdir=$self->{currentdir};
+	my $p=$Dotiac::DTL::PARSER;
+	$Dotiac::DTL::PARSER=$self->{parser};
+	my $ret="";
 	eval {
-		return $self->{first}->string({%{$self->{vars}},%{$vars}},$Dotiac::DTL::AUTOESCAPING);
+		$ret=$self->{first}->string({%{$self->{vars}},%{$vars}},$Dotiac::DTL::AUTOESCAPING);
 		1;
 	} or do {
 		croak "Error while rendering output to string\n $@\n.";
 		undef $@;
 	};
+	Dotiac::DTL::Addon::restore();
+	$Dotiac::DTL::PARSER=$p;
+	return $ret;
 }
 
 sub render {
@@ -68,10 +89,12 @@ sub output {
 sub print {
 	my $self=shift;
 	my $vars=shift || {};
-	Dotiac::DTL::Addon::restore();
 	%Dotiac::DTL::blocks=();
 	%Dotiac::DTL::cycle=();
 	%Dotiac::DTL::globals=();
+	$Dotiac::DTL::currentdir=$self->{currentdir};
+	my $p=$Dotiac::DTL::PARSER;
+	$Dotiac::DTL::PARSER=$self->{parser};
 	eval {
 		$self->{first}->print({%{$self->{vars}},%{$vars}},$Dotiac::DTL::AUTOESCAPING);
 		1;
@@ -79,6 +102,9 @@ sub print {
 		croak "Error while printing output\n $@\n.";
 		undef $@;
 	};
+	Dotiac::DTL::Addon::restore();
+	$Dotiac::DTL::PARSER=$p;
+	return;
 }
 
 1;

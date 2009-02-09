@@ -1,7 +1,7 @@
 #extends.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.7
+#Version 0.8
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -19,7 +19,7 @@ use strict;
 use warnings;
 require Scalar::Util;
 
-our $VERSION = 0.7;
+our $VERSION = 0.8;
 
 sub new {
 	my $class=shift;
@@ -56,7 +56,7 @@ sub print {
 	else {
 		my $tem = Dotiac::DTL::devar_raw($self->{var},@_);
 		if ($tem->scalar()) {
-			$tem = Dotiac::DTL->safenew($tem->string);
+			$tem = Dotiac::DTL->safenew($tem->repr);
 		}
 		elsif ($tem->object() and $tem->content->isa("Dotiac::DTL::Template")) {
 			$tem=$tem->content;
@@ -76,7 +76,7 @@ sub string {
 	}
 	my $tem = Dotiac::DTL::devar_raw($self->{var},@_);
 	if ($tem->scalar()) {
-		$tem = Dotiac::DTL->safenew($tem->string);
+		$tem = Dotiac::DTL->safenew($tem->repr);
 	}
 	elsif ($tem->object() and $tem->content->isa("Dotiac::DTL::Template")) {
 		$tem=$tem->content;
@@ -117,7 +117,7 @@ sub perlprint {
 	else {
 		print $fh $in,"my \$template$id = Dotiac::DTL::devar_raw(\$name$id,\$vars,\$escape,\@_);\n";
 		print $fh $in,"if (\$template$id->scalar()) {\n";
-		print $fh $in,"\t\$template$id = Dotiac::DTL->safenew(\$template$id->string());\n";
+		print $fh $in,"\t\$template$id = Dotiac::DTL->safenew(\$template$id->repr());\n";
 		print $fh $in,"} elsif (\$template$id->object() and \$template$id->content->isa(\"Dotiac::DTL::Template\")) {\n";
 		print $fh $in,"\t\$template$id=\$template$id->content;\n";
 		print $fh $in,"} else {\n";
@@ -142,7 +142,7 @@ sub perlstring {
 	else {
 		print $fh $in,"my \$template$id = Dotiac::DTL::devar_raw(\$name$id,\$vars,\$escape,\@_);\n";
 		print $fh $in,"if (\$template$id->scalar()) {\n";
-		print $fh $in,"\t\$template$id = Dotiac::DTL->safenew(\$template$id->string());\n";
+		print $fh $in,"\t\$template$id = Dotiac::DTL->safenew(\$template$id->repr());\n";
 		print $fh $in,"} elsif (\$template$id->object() and \$template$id->content->isa(\"Dotiac::DTL::Template\")) {\n";
 		print $fh $in,"\t\$template$id=\$template$id->content;\n";
 		print $fh $in,"} else {\n";

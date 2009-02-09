@@ -1,7 +1,7 @@
 #for.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.7
+#Version 0.8
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -19,7 +19,7 @@ use strict;
 use warnings;
 require Scalar::Util;
 
-our $VERSION = 0.7;
+our $VERSION = 0.8;
 
 sub new {
 	my $class=shift;
@@ -181,10 +181,10 @@ sub perl {
 		print $fh "my ";
 		print $fh (Data::Dumper->Dump([$self->{var}],["\$vars$id"]));
 	}
-	if ($self->{empty}) {
-		print $fh "my ";
-		print $fh (Data::Dumper->Dump([$self->{empty}],["\$empty$id"]));
-	}
+	#if ($self->{empty}) {
+	#	print $fh "my ";
+	#	print $fh (Data::Dumper->Dump([$self->{empty}],["\$empty$id"]));
+	#}
 	$id=$self->{content}->perl($fh,$id+1,@_);
 	$id=$self->{empty}->perl($fh,$id+1,@_) if $self->{empty};
 	return $self->{n}->perl($fh,$id+1,@_);

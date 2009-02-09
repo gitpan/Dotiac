@@ -1,7 +1,7 @@
 #ssi.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.7
+#Version 0.8
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -18,7 +18,7 @@ use base qw/Dotiac::DTL::Tag/;
 use strict;
 use warnings;
 
-our $VERSION = 0.7;
+our $VERSION = 0.8;
 
 sub new {
 	my $class=shift;
@@ -56,7 +56,7 @@ sub print {
 		$self->{content}->print(@_);
 	}
 	else {
-		my $tem = Dotiac::DTL::devar($self->{var},@_);
+		my $tem = Dotiac::DTL::devar_repr($self->{var},@_);
 		if ($self->{parsed}) {
 			my $tem = Dotiac::DTL->safenew($tem);
 			$tem->{first}->print(@_);
@@ -74,7 +74,7 @@ sub string {
 	if ($self->{content}) {
 		return $self->{p}.$self->{content}->string(@_).($self->{n}?$self->{n}->string(@_):"");
 	}
-	my $tem = Dotiac::DTL::devar($self->{var},@_);
+	my $tem = Dotiac::DTL::devar_repr($self->{var},@_);
 	if ($self->{parsed}) {
 		$tem = Dotiac::DTL->safenew($tem);
 		return $self->{p}.$tem->{first}->string(@_).($self->{n}?$self->{n}->string(@_):"");
@@ -123,7 +123,7 @@ sub perlprint {
 	}
 	else {
 		if ($self->{parsed}) {
-			print $fh $in,"my \$template$id = Dotiac::DTL::devar(\$name$id,\$vars,\$escape,\@_);\n";
+			print $fh $in,"my \$template$id = Dotiac::DTL::devar_repr(\$name$id,\$vars,\$escape,\@_);\n";
 			print $fh $in,"my \$s$id=\$template$id;\n";
 			print $fh $in,"if (not ref \$template$id) {\n";
 			print $fh $in,"\t\$template$id = Dotiac::DTL->new(\$template$id);\n";
@@ -135,7 +135,7 @@ sub perlprint {
 			print $fh $in,"\$Dotiac::DTL::included{\$s$id}=0;\n";
 		}
 		else {
-			print $fh $in,"open my \$fh$id,'<',Dotiac::DTL::devar(\$name$id,\$vars,\$escape,\@_) or die \"Can't SSI \$name$id: \$!\";\n";
+			print $fh $in,"open my \$fh$id,'<',Dotiac::DTL::devar_repr(\$name$id,\$vars,\$escape,\@_) or die \"Can't SSI \$name$id: \$!\";\n";
 			print $fh $in,"print do {local \$/;<\$fh$id>};\n";
 			print $fh $in,"close \$fh$id;\n";
 		}
@@ -157,7 +157,7 @@ sub perlstring {
 	}
 	else {
 		if ($self->{parsed}) {
-			print $fh $in,"my \$template$id = Dotiac::DTL::devar(\$name$id,\$vars,\$escape,\@_);\n";
+			print $fh $in,"my \$template$id = Dotiac::DTL::devar_repr(\$name$id,\$vars,\$escape,\@_);\n";
 			print $fh $in,"my \$s$id=\$template$id;\n";
 			print $fh $in,"if (not ref \$template$id) {\n";
 			print $fh $in,"\t\$template$id = Dotiac::DTL->safenew(\$template$id);\n";
@@ -169,7 +169,7 @@ sub perlstring {
 			print $fh $in,"\$Dotiac::DTL::included{\$s$id}=0;\n";
 		}
 		else {
-			print $fh $in,"open my \$fh$id,'<',Dotiac::DTL::devar(\$name$id,\$vars,\$escape,\@_) or die \"Can't SSI \$name$id: \$!\";\n";
+			print $fh $in,"open my \$fh$id,'<',Dotiac::DTL::devar_repr(\$name$id,\$vars,\$escape,\@_) or die \"Can't SSI \$name$id: \$!\";\n";
 			print $fh $in,"\$r.=do {local \$/;<\$fh$id>};\n";
 			print $fh $in,"close \$fh$id;\n";
 		}
@@ -194,7 +194,7 @@ sub perleval {
 			print $fh $in,"\$Dotiac::DTL::included{\$template$id}=0;\n";
 		}
 		else {
-			print $fh $in,"my \$template$id = Dotiac::DTL::devar(\$name$id,\$vars,\$escape,\@_);\n";
+			print $fh $in,"my \$template$id = Dotiac::DTL::devar_repr(\$name$id,\$vars,\$escape,\@_);\n";
 			print $fh $in,"my \$s$id=\$template$id;\n";
 			print $fh $in,"if (not ref \$template$id) {\n";
 			print $fh $in,"\t\$template$id = Dotiac::DTL->safenew(\$template$id);\n";

@@ -2,9 +2,11 @@
 package Dotiac::DTL::Compiled::reducedtest;
 use strict;
 use warnings;
+our $params={"inc_object"=>1};
 my $text2 = "A";
 my $name2 = "inc_object";
 my $text3 = "A";
+
 
 #INIT
 

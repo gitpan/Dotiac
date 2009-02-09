@@ -1,5 +1,7 @@
 package CompiledTemplate;
 
+
+our $params = {var=>1};
 use strict;
 use warnings;
 
@@ -15,7 +17,7 @@ sub print() {
 
 package tester;
 use File::Temp qw/ :POSIX /;
-use Test::More tests=>6;
+use Test::More tests=>8;
 eval {
 	require Test::NoWarnings;
 	Test::NoWarnings->import();
@@ -52,6 +54,7 @@ if ($@) {
 else {
 	Test::More::pass("Template loading reduced $source");
 }
+is_deeply([$t->param()],['inc_object'],"Saved parameters from compiled template");
 $source="justtext.html";
 eval {
 	my $x=Dotiac::DTL->new($source);
@@ -67,7 +70,7 @@ else {
 $source="test_include.html";
 my $expected="ABACABA"; #No \n :)
 my $param={inc_object=>Dotiac::DTL->compiled("CompiledTemplate")};
-
+is_deeply([$param->{inc_object}->param()],['var'],"Saved parameters from custom package");
 my $res=nor($t->string($param));
 Test::More::is($res,$expected,"String output from reduced template: $source");
 
@@ -80,6 +83,7 @@ select STDOUT;
 close FH;
 open FH,"<",$file;
 binmode FH;
+unlink $file;
 Test::More::is(nor(do {local $/;<FH>}),$expected,"Print output from reduced template: $source");
 close FH;
 

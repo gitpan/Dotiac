@@ -1,7 +1,7 @@
 #load.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.7
+#Version 0.8
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -18,7 +18,7 @@ use base qw/Dotiac::DTL::Tag/;
 use strict;
 use warnings;
 
-our $VERSION = 0.7;
+our $VERSION = 0.8;
 
 sub new {
 	my $class=shift;
@@ -29,6 +29,10 @@ sub new {
 	$self->{module}=[map {"Dotiac::DTL::Addon::$_"} @modules];
 	foreach my $m (@{$self->{module}}) {
 		eval "require $m";
+		unless ($Dotiac::DTL::Addon::Loaded{$m}++) {
+			"$m"->import();
+			push @Dotiac::DTL::Addon::Loaded,"$m";
+		}
 		die $@ if $@;
 	}
 	bless $self,$class;
@@ -38,7 +42,7 @@ sub print {
 	my $self=shift;
 	print $self->{p};
 	foreach my $m (@{$self->{module}}) {
-		unless ($Dotiac::DTL::Addon::Loaded{$m}) {
+		unless ($Dotiac::DTL::Addon::Loaded{$m}++) {
 			"$m"->import();
 			push @Dotiac::DTL::Addon::Loaded,"$m";
 		}
@@ -48,7 +52,7 @@ sub print {
 sub string {
 	my $self=shift;
 	foreach my $m (@{$self->{module}}) {
-		unless ($Dotiac::DTL::Addon::Loaded{$m}) {
+		unless ($Dotiac::DTL::Addon::Loaded{$m}++) {
 			"$m"->import();
 			push @Dotiac::DTL::Addon::Loaded,"$m";
 		}
@@ -61,10 +65,16 @@ sub perl {
 	my $fh=shift;
 	my $id=shift;
 	$self->SUPER::perl($fh,$id,@_);
+	my @mods=grep !$Dotiac::DTL::Addon::NOCOMPILE{$_},@{$self->{module}};
+	#die Data::Dumper->Dump([\%Dotiac::DTL::Addon::NOCOMPILE,[@mods]]);
 	print $fh "my ";
-	print $fh (Data::Dumper->Dump([$self->{module}],["\$module$id"]));
-	foreach my $m (@{$self->{module}}) {
+	print $fh (Data::Dumper->Dump([\@mods],["\$module$id"]));
+	foreach my $m (@mods) {
 		print $fh "require $m;\n";
+		print $fh "unless (\$Dotiac::DTL::Addon::Loaded{\"$m\"}++) {\n";
+		print $fh "\t$m->import();\n";
+		print $fh "\t\tpush \@Dotiac::DTL::Addon::Loaded,\"$m\";\n";
+		print $fh "\t}\n";
 	}
 	return $self->{n}->perl($fh,$id+1,@_) if $self->{n};	
 	return $id;
@@ -76,7 +86,7 @@ sub perlprint {
 	my $level=shift;
 	my $in="\t" x $level;
 	print $fh $in,"foreach my \$m (\@\$module$id) {\n";
-	print $fh $in,"\tunless (\$Dotiac::DTL::Addon::Loaded{\$m}) {\n";
+	print $fh $in,"\tunless (\$Dotiac::DTL::Addon::Loaded{\$m}++) {\n";
 	print $fh $in,"\t\t\"\$m\"->import();\n";
 	print $fh $in,"\t\t\tpush \@Dotiac::DTL::Addon::Loaded,\"\$m\";\n";
 	print $fh $in,"\t}\n";
@@ -91,7 +101,7 @@ sub perlstring {
 	my $level=shift;
 	my $in="\t" x $level;
 	print $fh $in,"foreach my \$m (\@\$module$id) {\n";
-	print $fh $in,"\tunless (\$Dotiac::DTL::Addon::Loaded{\$m}) {\n";
+	print $fh $in,"\tunless (\$Dotiac::DTL::Addon::Loaded{\$m}++) {\n";
 	print $fh $in,"\t\t\"\$m\"->import();\n";
 	print $fh $in,"\t\t\tpush \@Dotiac::DTL::Addon::Loaded,\"\$m\";\n";
 	print $fh $in,"\t}\n";
@@ -111,7 +121,7 @@ sub perleval {
 	my $level=shift;
 	my $in="\t" x $level;
 	print $fh $in,"foreach my \$m (\@\$module$id) {\n";
-	print $fh $in,"\tunless (\$Dotiac::DTL::Addon::Loaded{\$m}) {\n";
+	print $fh $in,"\tunless (\$Dotiac::DTL::Addon::Loaded{\$m}++) {\n";
 	print $fh $in,"\t\t\"\$m\"->import();\n";
 	print $fh $in,"\t\t\tpush \@Dotiac::DTL::Addon::Loaded,\"\$m\";\n";
 	print $fh $in,"\t}\n";

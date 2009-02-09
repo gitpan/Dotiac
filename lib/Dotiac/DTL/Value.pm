@@ -2,7 +2,7 @@
 #Value.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.7
+#Version 0.8
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -19,7 +19,7 @@ use strict;
 use warnings;
 require Scalar::Util;
 
-our $VERSION = 0.7;
+our $VERSION = 0.8;
 
 sub new {
 	my $class=shift;
@@ -27,7 +27,7 @@ sub new {
 	my $safe=shift;
 	$safe=0 unless $safe;
 	$safe=1 if $safe;
-	my $r=Scalar::Util::reftype $data;
+	my $r=Scalar::Util::reftype($data);
 	$r="" unless $r;
 	my $self=[$data,$safe,$r,Scalar::Util::blessed($data),($r?0:Scalar::Util::looks_like_number($data))];
 	bless $self,$class;
@@ -315,7 +315,7 @@ sub set {
 	my $self=shift;
 	my $data=shift;
 	$self->[0]=$data;
-	my $r=Scalar::Util::reftype $data;
+	my $r=Scalar::Util::reftype($data);
 	$r="" unless $r;
 	$self->[2]=$r;
 	$self->[3]=Scalar::Util::blessed($data);

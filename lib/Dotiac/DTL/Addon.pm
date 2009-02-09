@@ -2,7 +2,7 @@
 #Addon.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.7
+#Version 0.8
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -19,7 +19,9 @@ use strict;
 use warnings;
 our @Loaded=();
 our %Loaded=();
-our $VERSION = 0.7;
+our $VERSION = 0.8;
+
+our %NOCOMPILE=(); #Modules that shouldn't be included into the compiled template, i.e. parser changing modules.
 
 sub restore {
 	while (my $mod=shift @Loaded) {
@@ -203,6 +205,26 @@ Calls unimport on all methodes loaded by {% load %}
 =head3 @Dotiac::DTL::Addons::loaded
 
 Stores the loaded module names;
+
+=head3 %Dotiac::DTL::Addons::NOCOMPILE 
+
+Modules that shouldn't be included into compiled template (by {% load %}) should register themselves here.
+
+These are mostly:
+
+=over
+
+=item Parser changing modules.
+
+The Parser is not needed in compiled templates
+
+=item Tag adding modules.
+
+Since the Tags are compiled down to Perl-code, their source is not needed anymore
+
+=back
+
+B<Modules that add filters have to stay>
 
 =head1 BUGS
 

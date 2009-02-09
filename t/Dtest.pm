@@ -52,7 +52,12 @@ sub dtest {
 		undef $@;
 	}
 	else {
-		Test::More::pass("Template loading compiled $source");
+		if ($t->{first}->isa("Dotiac::DTL::Compiled")) {
+			Test::More::pass("Template loading compiled $source");
+		}
+		else {
+			Test::More::fail("Template loading compiled $source: is not compiled, but a $t->{first} ");
+		}
 	}
 	Test::More::is(nor($t->string($param)),$expected,"String output from compiled template: $source");
 	open FH,">",$file;
@@ -65,6 +70,7 @@ sub dtest {
 	binmode FH;
 	Test::More::is(nor(do {local $/;<FH>}),$expected,"Print output from compiled template: $source");
 	close FH;
+	unlink $file;
 	unlink "$source.pm";
 	print STDERR "\n",Data::Dumper->Dump([$res,$expected],[qw/whatIgot expected/]) if $res ne $expected;
 }

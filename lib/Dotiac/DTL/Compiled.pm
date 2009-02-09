@@ -2,7 +2,7 @@
 #Comment.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.7
+#Version 0.8
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -18,7 +18,7 @@
 package Dotiac::DTL::Compiled;
 use strict;
 use warnings;
-our $VERSION = 0.7;
+our $VERSION = 0.8;
 
 sub new {
 	my $class=shift;
@@ -26,6 +26,12 @@ sub new {
 	my $self={};
 	$self->{name}=$name;
 	bless $self,$class;
+	eval {
+		#{
+		no strict 'refs';
+		#warn  Data::Dumper->Dump([${"$name"."::params"}]) if ${"$name"."::params"} and %{${"$name"."::params"}};
+		%Dotiac::DTL::params=%{${"$name"."::params"}} if ${"$name"."::params"};
+	};
 	return $self;
 }
 

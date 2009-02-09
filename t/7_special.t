@@ -10,6 +10,7 @@ eval {
 	};
 };
 chdir "t";
+unshift @INC,"."; #To load the local version, not the redist one...
 require Dtest;
 #require Dotiac::DTL::Addon::unparsed;
 dtest("special_unparsed.html","A{{ X }}A{% unparsed %}{{ X }}{% endunparsed %}A{{ Z }}\n",{});

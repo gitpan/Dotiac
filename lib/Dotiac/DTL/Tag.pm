@@ -2,7 +2,7 @@
 #Tag.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.7
+#Version 0.8
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -16,33 +16,10 @@
 
 package Dotiac::DTL::Tag;
 #Default Tags
-require Dotiac::DTL::Tag::autoescape;
-require Dotiac::DTL::Tag::block;
-require Dotiac::DTL::Tag::extends;
-require Dotiac::DTL::Tag::comment;
-require Dotiac::DTL::Tag::cycle;
-require Dotiac::DTL::Tag::debug;
-require Dotiac::DTL::Tag::filter;
-require Dotiac::DTL::Tag::firstof;
-require Dotiac::DTL::Tag::for;
-require Dotiac::DTL::Tag::if;
-require Dotiac::DTL::Tag::ifequal;
-require Dotiac::DTL::Tag::ifnotequal;
-require Dotiac::DTL::Tag::ifchanged;
-require Dotiac::DTL::Tag::include;
-require Dotiac::DTL::Tag::load;
-require Dotiac::DTL::Tag::now;
-require Dotiac::DTL::Tag::regroup;
-require Dotiac::DTL::Tag::spaceless;
-require Dotiac::DTL::Tag::ssi;
-require Dotiac::DTL::Tag::templatetag;
-require Dotiac::DTL::Tag::url;
-require Dotiac::DTL::Tag::widthratio;
-require Dotiac::DTL::Tag::with;
 use strict;
 use warnings;
 
-our $VERSION = 0.7;
+our $VERSION = 0.8;
 
 sub new {
 	my $class=shift;

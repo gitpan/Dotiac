@@ -2,7 +2,7 @@
 #Core.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.7
+#Version 0.8
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -16,11 +16,13 @@
 
 package Dotiac::DTL::Core;
 
-our $VERSION = 0.7;
+our $VERSION = 0.8;
 
 package Dotiac::DTL;
 require Dotiac::DTL::Value;
 require Dotiac::DTL::Template;
+require Dotiac::DTL::Filter;
+require Dotiac::DTL::Compiled;
 
 use strict;
 use warnings;
@@ -39,12 +41,18 @@ our $DATE_FORMAT='N j, Y';
 our $TIME_FORMAT='P';
 our @TEMPLATE_DIRS=(); #Only used by Template();
 our $Max_Depth=3;
+our $CURRENTDIR="";
+our $PARSER="Dotiac::DTL::Parser";
 
-#deprecated
+#This has to change someday. not global
 our %blocks; #this needs to be global, sadly.
 our %cycle; #Also needs to be global.
 our %globals; #Well we already have other globals, this saves me the init() trough the whole tree/list.
+
+
 our %included;
+our %params;
+
 
 # Template cache, needs to be global
 my %cache;
@@ -53,6 +61,7 @@ sub new {
 	my $class=shift;
 	my $data=shift; 
 	my $t="";
+	%params=();
 	if (ref $data eq "SCALAR") {
 		die "Dotiac::DTL::Reduced can only work with compiled templates, use Dotiac::DTL for the full interface";
 	}
@@ -61,10 +70,21 @@ sub new {
 		my @f = File::Basename::fileparse($data);
 		$Dotiac::DTL::currentdir=$f[1];
 		if (-e "$data.pm") {
+			if ($cache{"$data.pm"} and exists $cache{"$data.pm"}->{changetime} and $cache{"$data.pm"}->{changetime} < (stat("$data.pm"))[9]) {
+				carp "Foo";
+				delete $cache{"$data.pm"};
+				delete $INC{"$data.pm"};
+			}
 			if (-e $data) {
-				if (-M "$data.pm" < -M $data) {
+				if ((stat("$data.pm"))[9] >= (stat("$data"))[9]) {
 					eval {
-						$cache{"$data.pm"}=Dotiac::DTL::Compiled->new("Dotiac::DTL::Compiled::".require "$data.pm") unless ($cache{"$data.pm"});
+						$cache{"$data.pm"}={
+							template=>Dotiac::DTLCompiled->new("Dotiac::DTL::Compiled::".require "$data.pm"),
+							currentdir=>$Dotiac::DTL::currentdir,
+							params=>{%Dotiac::DTL::params},
+							parser=>$Dotiac::DTL::PARSER,
+							changetime=>(stat("$data.pm"))[9]
+						} if not $cache{"$data.pm"};# or (exists $cache{"$data.pm"}->{changetime} and $cache{"$data.pm"}->{changetime} > -M "$data.pm"); #Can't do it, Require won't return the filename a second time, has to be solved differently by manually modifing %INC
 						$t="$data.pm";
 						1;
 					} or do {
@@ -75,7 +95,13 @@ sub new {
 				else {
 					carp "$data seem to outdate $data.pm, but Dotiac::DTL::Reduced can only work with compiled templates, use Dotiac::DTL to recompile";
 					eval {
-						$cache{"$data.pm"}=Dotiac::DTL::Compiled->new("Dotiac::DTL::Compiled::".require "$data.pm") unless ($cache{"$data.pm"});
+						$cache{"$data.pm"}={
+							template=>Dotiac::DTLCompiled->new("Dotiac::DTL::Compiled::".require "$data.pm"),
+							currentdir=>$Dotiac::DTL::currentdir,
+							params=>{%Dotiac::DTL::params},
+							parser=>$Dotiac::DTL::PARSER,
+							changetime=>(stat("$data.pm"))[9]
+						} if not $cache{"$data.pm"};# or (exists $cache{"$data.pm"}->{changetime} and $cache{"$data.pm"}->{changetime} > -M "$data.pm");
 						$t="$data.pm";
 						1;
 					} or do {
@@ -86,7 +112,13 @@ sub new {
 			}
 			else {
 				eval {
-					$cache{"$data.pm"}=Dotiac::DTL::Compiled->new("Dotiac::DTL::Compiled::".require "$data.pm") unless ($cache{"$data.pm"});
+					$cache{"$data.pm"}={
+						template=>Dotiac::DTL::Compiled->new("Dotiac::DTL::Compiled::".require "$data.pm"),
+						currentdir=>$Dotiac::DTL::currentdir,
+						params=>{%Dotiac::DTL::params},
+						parser=>$Dotiac::DTL::PARSER,
+						changetime=>(stat("$data.pm"))[9]
+					} if not $cache{"$data.pm"};# or (exists $cache{"$data.pm"}->{changetime} and $cache{"$data.pm"}->{changetime} > -M "$data.pm");
 					$t="$data.pm";
 					1;
 				} or do {
@@ -103,8 +135,9 @@ sub new {
 		die "Can't work with $data!";
 	}
 	#$self->{data}=$data;
+	Dotiac::DTL::Addon::restore();
 	if ($cache{$t}) {
-		return "Dotiac::DTL::Template"->new($cache{$t});
+		return "Dotiac::DTL::Template"->new($cache{$t}->{template},$cache{$t}->{currentdir},$cache{$t}->{parser},$cache{$t}->{params});
 	}
 	else {
 		croak "Dotiac::DTL::Reduced can only work with compiled templates, use Dotiac::DTL for the full interface";
@@ -125,21 +158,27 @@ sub safenew {
 		my $rfile=File::Spec->catfile(".",$currentdir,$file);
 		return Dotiac::DTL->new($rfile) if -e $rfile or -e "$rfile.pm";
 	}
-	return Dotiac::DTL->new($file);
+	my $p=$Dotiac::DTL::PARSER;
+	my $r=Dotiac::DTL->new($file);
+	$Dotiac::DTL::PARSER=$p;
+	return $r;
 }
 
 sub compiled {
 	my $class=shift;
 	my $name=shift;
 	my $f;
+	$Dotiac::DTL::currentdir=$Dotiac::DTL::CURRENTDIR;
+	%params=();
 	eval {
 		$f=Dotiac::DTL::Compiled->new($name);
 		1;
 	} or do {
 		croak "Error while getting compiled template from $name\n $@\n.";
 		undef $@;
-	};
-	return "Dotiac::DTL::Template"->new($f);
+	};	
+	undef $@;
+	return "Dotiac::DTL::Template"->new($f,$Dotiac::DTL::CURRENTDIR);
 }
 
 
@@ -198,19 +237,43 @@ sub get_variables {
 	}
 	#warn "var::$x";
 	if (@_) {
+		my %words;
+		@words{@_}=(1) x scalar @_;
 		my %ret;
-		my $keywords = "(?:^|\\s+)".join ("(?:^|\\s+)|(?:\\s+|\$)",@_)."(?:\\s+|\$)";
+		my $keywords = "(?:^|\\s+)".join ("(?:\\s+|\$)|(?:^|\\s+)",@_)."(?:\\s+|\$)";
+		#print STDERR "@_: $keywords\n";
 		my @l = split /($keywords)/,$x;
+		#print STDERR join(", ",@l)."\n";
 		unshift @l,"";
 		while (defined(my $k=shift @l)) {
 			$k=~s/^\s+//g;
 			$k=~s/\s+$//g;
-			$ret{$k}=[split /\s+/,(shift @l||"")];
+			if (@l) {
+				my $next=$l[0];
+				$next=~s/^\s+//g;
+				$next=~s/\s+$//g;
+				if ($words{$next}) {
+					$ret{$k}=[];
+				}
+				else {
+					my @a=split /\s+/,shift(@l);
+					$ret{$k}=[@a];
+					foreach my $a (@a) {
+						$Dotiac::DTL::params{$a}++;
+					}
+				}
+			}
+			else {
+				$ret{$k}=[];
+			}	
 		}
-		
 		return %ret;
 	}
-	return split /\s+/,$x; #TODO right here.
+	my @a= split /\s+/,$x;
+	foreach my $a (@a) {
+		$Dotiac::DTL::params{$a}++;
+	}
+	return @a;
 }
 
 sub Escape {
@@ -358,7 +421,7 @@ sub devar_var {
 		return Dotiac::DTL::Value->safe($param->{"block.super"}->string($param,@_)) if Scalar::Util::blessed($param->{"block.super"});
 		return Dotiac::DTL::Value->safe($param->{"block.super"}->($param,@_)) if ref $param->{"block.super"} eq "CODE";
 	}
-	return Dotiac::DTL::Value->new($param->{$name},!$escape) if $param->{$name};
+	return Dotiac::DTL::Value->new($param->{$name},!$escape) if exists $param->{$name};
 	my @tree=split/\./,$name;
 	$name=shift @tree;
 	unless (exists $param->{$name}) {
@@ -400,10 +463,23 @@ sub devar_var {
 			}
 		}
 		if (blessed $param) {
-			return Dotiac::DTL::Value->safe(undef) unless $param->can($name);
 			return Dotiac::DTL::Value->safe(undef) unless $ALLOW_METHOD_CALLS; 
-			$param=$param->$name();
-			next;
+			if ($param->can($name)) {
+				$param=$param->$name();
+				next;
+			}
+			elsif ($param->can("__getitem__")) {
+				my $x;
+				eval {
+					$x=$param->__getitem__($name);
+					1;
+				} or return Dotiac::DTL::Value->safe(undef);
+				if (defined $x) {
+					$param=$x;
+					next;
+				}
+			}
+			return Dotiac::DTL::Value->safe(undef);
 		}
 		return Dotiac::DTL::Value->safe($n) if $n!~/[^\d\-\.\,\e]/;
 		return Dotiac::DTL::Value->safe(undef);
@@ -505,11 +581,19 @@ Which parser Dotiac::DTL should use. Defaults to "Dotiac::DTL::Parser", the norm
 
 You only should change this, if you know what you are doing.
 
+=head2 $Dotiac::DTL::CURRENTDIR
+
+This is used when called from a scalarref to define in what directory the template is (for include)
+
 =head2 Static internal variables
 
 These are only important to people writing there own Tags. See L<Dotiac::DTL::Tag> for details on that.
 
 These variables are cleared every time print() or string() or similar on the main template is called.
+
+=head2 $Dotiac::DTL::currentdir
+
+This is used to save in what directory the template is (for include).
 
 =head3 $Dotiac::DTL::Max_Depth
 

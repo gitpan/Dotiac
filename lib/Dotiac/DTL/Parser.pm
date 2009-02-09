@@ -2,7 +2,7 @@
 #Parser.pm
 #Last Change: 2009-01-19
 #Copyright (c) 2009 Marc-Seabstian "Maluku" Lucksch
-#Version 0.7
+#Version 0.8
 ####################
 #This file is part of the Dotiac::DTL project. 
 #http://search.cpan.org/perldoc?Dotiac::DTL
@@ -16,10 +16,33 @@
 
 package Dotiac::DTL::Parser;
 require Dotiac::DTL::Tag;
-require Dotiac::DTL::Filter;
 require Dotiac::DTL::Variable;
 require Dotiac::DTL::Comment;
-our $VERSION = 0.7;
+require Dotiac::DTL::Tag::autoescape;
+require Dotiac::DTL::Tag::block;
+require Dotiac::DTL::Tag::extends;
+require Dotiac::DTL::Tag::comment;
+require Dotiac::DTL::Tag::cycle;
+require Dotiac::DTL::Tag::debug;
+require Dotiac::DTL::Tag::filter;
+require Dotiac::DTL::Tag::firstof;
+require Dotiac::DTL::Tag::for;
+require Dotiac::DTL::Tag::if;
+require Dotiac::DTL::Tag::ifequal;
+require Dotiac::DTL::Tag::ifnotequal;
+require Dotiac::DTL::Tag::ifchanged;
+require Dotiac::DTL::Tag::include;
+require Dotiac::DTL::Tag::load;
+require Dotiac::DTL::Tag::now;
+require Dotiac::DTL::Tag::regroup;
+require Dotiac::DTL::Tag::spaceless;
+require Dotiac::DTL::Tag::ssi;
+require Dotiac::DTL::Tag::templatetag;
+require Dotiac::DTL::Tag::url;
+require Dotiac::DTL::Tag::widthratio;
+require Dotiac::DTL::Tag::with;
+
+our $VERSION = 0.8;
 
 use strict;
 use warnings;
@@ -86,7 +109,7 @@ sub parse {
 	my $found;
 	$found=shift @end if @end;
 	local $_;
-	while (1) {
+	while ($Dotiac::DTL::PARSER eq __PACKAGE__) {
 		my $p = index($$template,"{",$$pos);
 		if ($p >=0) {
 			$$pos=$p+1;
@@ -140,6 +163,11 @@ sub parse {
 			return Dotiac::DTL::Tag->new(substr $$template,$start);
 		}
 	}
+	my $parser=$Dotiac::DTL::PARSER->new();
+	my @args=($template,$pos);
+	push @args,$found if $found;
+	push @args,@end if @end;
+	return $parser->parse(@args);
 }
 
 1;

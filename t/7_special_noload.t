@@ -11,6 +11,7 @@ eval {
 };
 BEGIN {
 chdir "t";
+unshift @INC,"."; #To load the local version, not the redist one...
 };
 require Dtest;
 use Dotiac::DTL::Addon::unparsed;

@@ -48,6 +48,7 @@ t/5_bugs.t
 t/6_reduced_compiled.t
 t/7_special.t
 t/7_special_noload.t
+t/7_special_reparse.t
 t/8_old.t
 t/9_undoc_behavior.t
 t/4_pod.t
@@ -175,6 +176,7 @@ t/undoc_cycle.html
 t/variables.html
 t/variables1.html
 t/variables2.html
+t/variables3.html
 examples/cgi-bin/blog.pl
 examples/cgi-bin/ConfigPathes.pm
 examples/cgi-bin/DataAccess.pm
